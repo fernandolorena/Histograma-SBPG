@@ -1,0 +1,2167 @@
+<title>Histograma SBPG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#f0ede4;
+  --bg-grid: rgba(11,11,11,0.025);
+  --page-ink-muted:#6b7280;
+  --surface-1:#fbf9f4;
+  --surface-2:#f2efe6;
+  --surface-3:#e7e2d3;
+  --border:rgba(11,11,11,0.08);
+  --border-strong:rgba(11,11,11,0.15);
+  --text-primary:#20242c;
+  --text-secondary:#4b5563;
+  --text-muted:#6b7280;
+  --accent:#2dd4bf;
+  --accent-soft:rgba(15,125,112,0.12);
+  --accent-strong:#0f7d70;
+  --good:#0ca30c;
+  --warning:#b45309;
+  --serious:#c2410c;
+  --critical:#d03b3b;
+  --seq-blue:#2a78d6;
+  --f-adutora:#2a78d6;
+  --f-canteiro:#eb6834;
+  --f-engenharia:#1baf7a;
+  --f-pesquisa:#eda100;
+  --f-reparo:#e87ba4;
+  --f-reposicao:#008300;
+  --f-reposicaoasf:#4a3aa7;
+  --f-setorizacao:#e34948;
+  --radius-lg:16px;
+  --radius-md:12px;
+  --radius-sm:8px;
+  --shadow-card: 0 1px 0 rgba(255,255,255,0.7) inset, 0 10px 22px -16px rgba(20,18,12,0.18), 0 2px 6px -3px rgba(20,18,12,0.10);
+}
+
+*{box-sizing:border-box;}
+[hidden]{display:none !important;}
+html,body{margin:0;padding:0;}
+body{
+  background: var(--bg);
+  color:var(--text-primary);
+  font-family:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size:14px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+
+h1,h2,h3{font-family:"Sora", "IBM Plex Sans", sans-serif; margin:0; text-wrap:balance;}
+
+.mono{font-family:"IBM Plex Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums;}
+
+a{color:var(--accent-strong);}
+
+/* ---------- Layout shell ---------- */
+.wrap{max-width:1440px; margin:0 auto; padding:28px 28px 64px;}
+
+.topbar{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:24px;
+  padding:20px 22px; margin-bottom:22px; flex-wrap:wrap;
+  background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-card);
+}
+.topbar-left{display:flex; align-items:center; gap:18px;}
+.logo-mark{height:72px; width:auto; flex:none; display:block;}
+.topbar .title-block{display:flex; flex-direction:column; gap:6px;}
+.eyebrow{
+  font-family:"IBM Plex Mono", monospace; font-size:15px; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--accent-strong); font-weight:600;
+}
+.topbar h1{font-size:26px; font-weight:700; color:var(--text-primary);}
+.topbar .subtitle{color:var(--text-secondary); font-size:13.5px; max-width:640px;}
+.topbar .meta{
+  display:flex; flex-direction:column; align-items:flex-end; gap:6px; font-size:12px; color:var(--text-muted);
+  min-width:220px;
+}
+.topbar .meta .src{
+  background:var(--surface-2); border:1px solid var(--border); border-radius:999px;
+  padding:5px 12px; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--text-secondary);
+}
+.btn-link{text-decoration:none;}
+.btn-link .chev{font-size:11px;}
+.btn-link.btn-disabled{opacity:.6; cursor:default;}
+.btn-link.btn-disabled:hover{background:var(--surface-2); border-color:var(--border-strong);}
+
+/* ---------- Filter bar ---------- */
+.filterbar{
+  position:sticky; top:0; z-index:40;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  background:rgba(248,246,239,0.9); backdrop-filter:blur(10px);
+  border:1px solid var(--border); border-radius:var(--radius-md);
+  padding:12px 14px; margin-bottom:24px;
+  box-shadow:var(--shadow-card);
+}
+.filter-group{display:flex; align-items:center; gap:8px;}
+.filter-label{font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); font-weight:600; white-space:nowrap;}
+
+.pop-wrap{position:relative;}
+.btn{
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--surface-2); border:1px solid var(--border-strong); color:var(--text-primary);
+  border-radius:999px; padding:8px 14px; font-size:13px; font-weight:500; cursor:pointer;
+  transition:background .15s ease, border-color .15s ease;
+}
+.btn:hover{background:var(--surface-3); border-color:var(--accent);}
+.btn-save{background:var(--accent); border-color:var(--accent); color:#04211d; font-weight:700; letter-spacing:.03em; font-size:12px; text-transform:uppercase;}
+.btn-save:hover{background:var(--accent-strong); border-color:var(--accent-strong); color:#fff;}
+.btn-save:disabled{opacity:.55; cursor:default;}
+.btn .count{
+  background:var(--accent-soft); color:var(--accent-strong); border-radius:999px; padding:1px 8px; font-size:11.5px;
+  font-family:"IBM Plex Mono",monospace;
+}
+.btn .chev{font-size:10px; color:var(--text-muted); transition:transform .15s ease;}
+.btn[aria-expanded="true"] .chev{transform:rotate(180deg);}
+
+.popover{
+  position:absolute; top:calc(100% + 8px); left:0; z-index:60; min-width:280px;
+  background:var(--surface-2); border:1px solid var(--border-strong); border-radius:var(--radius-md);
+  box-shadow:0 16px 32px -14px rgba(20,18,12,0.22); padding:10px;
+  display:none;
+}
+.popover.open{display:block;}
+.popover-wide{min-width:260px;}
+.popover-scroll{max-height:260px; overflow-y:auto;}
+.popover-actions{display:flex; gap:8px; padding:2px 4px 8px; border-bottom:1px solid var(--border); margin-bottom:6px;}
+.link-btn{background:none; border:none; color:var(--accent-strong); font-size:12px; cursor:pointer; padding:2px 4px;}
+.link-btn:hover{text-decoration:underline;}
+.check-row{
+  display:flex; align-items:center; gap:9px; padding:7px 8px; border-radius:var(--radius-sm); cursor:pointer;
+  font-size:13px;
+}
+.check-row:hover{background:var(--surface-3);}
+.check-row input{accent-color:var(--accent); width:15px; height:15px;}
+.dot{width:9px; height:9px; border-radius:50%; flex:none;}
+.check-row .cnt{margin-left:auto; color:var(--text-muted); font-size:11.5px; font-family:"IBM Plex Mono",monospace;}
+
+.segmented{display:flex; background:var(--surface-2); border:1px solid var(--border-strong); border-radius:999px; padding:3px;}
+.segmented button{
+  border:none; background:none; color:var(--text-secondary); font-size:12.5px; font-weight:500;
+  padding:6px 13px; border-radius:999px; cursor:pointer; font-family:inherit;
+}
+.segmented button.active{background:var(--accent); color:#04211d; font-weight:600;}
+
+select.field{
+  background:var(--surface-2); border:1px solid var(--border-strong); color:var(--text-primary);
+  border-radius:999px; padding:7px 12px; font-size:12.5px; font-family:"IBM Plex Mono",monospace; cursor:pointer;
+}
+select.field:focus{outline:2px solid var(--accent); outline-offset:1px;}
+
+.filterbar .spacer{flex:1;}
+.filterbar .summary{font-size:12px; color:var(--text-muted);}
+.filterbar .summary b{color:var(--text-secondary); font-weight:600;}
+.reset-btn{
+  background:none; border:1px solid var(--border-strong); color:var(--text-secondary);
+  border-radius:999px; padding:7px 13px; font-size:12px; cursor:pointer;
+}
+.reset-btn:hover{border-color:var(--critical); color:var(--critical);}
+
+/* ---------- KPI grid ---------- */
+.kpi-grid{
+  display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:14px; margin-bottom:22px;
+}
+.kpi-card{
+  background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:16px 18px; box-shadow:var(--shadow-card); position:relative; overflow:hidden;
+}
+.kpi-card::before{
+  content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent);
+  opacity:.85;
+}
+.kpi-card.workforce::before{background:#4a3aa7;}
+.kpi-label{font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); font-weight:600; margin-bottom:8px;}
+.kpi-value{font-family:"IBM Plex Mono",monospace; font-size:23px; font-weight:600; color:var(--text-primary); font-variant-numeric:tabular-nums;}
+.kpi-sub{font-size:11.5px; color:var(--text-muted); margin-top:6px;}
+
+/* ---------- Panels ---------- */
+.panel{
+  background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:18px 20px; box-shadow:var(--shadow-card);
+}
+.panel-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:4px; flex-wrap:wrap;}
+.panel-title{font-size:14px; font-weight:600; color:var(--text-primary);}
+.panel-note{font-size:11.5px; color:var(--text-muted);}
+
+.charts-row{display:grid; grid-template-columns:1.5fr 1fr; gap:14px; margin-bottom:22px; align-items:stretch;}
+.chart-stack{display:flex; flex-direction:column; gap:14px;}
+.chart-box{position:relative; height:210px; margin-top:8px;}
+.chart-box.small{height:96px;}
+.frente-chart-box{position:relative; height:404px; margin-top:8px;}
+.chart-fill{position:relative; width:100%; height:100%;}
+.chart-svg{display:block; overflow:visible;}
+.bar-mark{transition:opacity .1s ease; cursor:pointer;}
+.bar-mark:hover{opacity:0.82;}
+.chart-tooltip{
+  position:absolute; display:none; pointer-events:none; z-index:30;
+  background:var(--surface-2); border:1px solid var(--border-strong); border-radius:8px;
+  padding:6px 10px; font-size:11.5px; font-family:"IBM Plex Mono",monospace; color:var(--text-primary);
+  box-shadow:0 10px 20px -8px rgba(20,18,12,0.2); white-space:nowrap; line-height:1.5;
+}
+.chart-tooltip b{color:var(--text-secondary); font-weight:500; font-family:"IBM Plex Sans",sans-serif; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em;}
+
+.legend-row{display:flex; flex-wrap:wrap; gap:10px 16px; margin-top:10px; font-size:11.5px; color:var(--text-secondary);}
+.legend-item{display:flex; align-items:center; gap:6px;}
+.legend-swatch{width:10px; height:10px; border-radius:3px; flex:none;}
+
+/* ---------- Badges ---------- */
+.badge{
+  display:inline-flex; align-items:center; gap:6px; padding:3px 9px; border-radius:999px;
+  font-size:11px; font-weight:500; white-space:nowrap;
+}
+.badge-frente{color:var(--text-primary);}
+.badge-frente .dot{width:7px; height:7px;}
+.badge-status{background:rgba(11,11,11,0.045); color:var(--text-secondary); border:1px solid var(--border-strong);}
+.badge-status.ativo{color:var(--good); border-color:rgba(12,163,12,0.35); background:rgba(12,163,12,0.1);}
+.badge-status.semfolha{color:var(--text-muted);}
+
+/* ---------- Tables ---------- */
+.table-scroll{overflow-x:auto; margin-top:12px; border-radius:var(--radius-md); border:1px solid var(--border);}
+table{border-collapse:separate; border-spacing:0; width:100%; font-size:12.5px;}
+thead th{
+  position:sticky; top:0; z-index:5; background:var(--surface-2); color:var(--text-secondary);
+  font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em;
+  padding:9px 10px; border-bottom:1px solid var(--border-strong); white-space:nowrap; text-align:right;
+}
+thead th:first-child, thead th:nth-child(2){text-align:left;}
+tbody td{padding:7px 10px; border-bottom:1px solid var(--border); white-space:nowrap; text-align:right; color:var(--text-secondary);}
+tbody td:first-child, tbody td:nth-child(2){text-align:left; color:var(--text-primary);}
+tbody tr:hover td{background:rgba(11,11,11,0.028);}
+tbody tr:last-child td{border-bottom:none;}
+.matrix-table thead th:nth-child(3){text-align:left;}
+.matrix-table tbody td:nth-child(3){text-align:left; color:var(--text-primary);}
+
+/* matrix table specifics */
+.matrix-table{table-layout:fixed;}
+.matrix-table td.cell{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; color:var(--text-primary); font-size:10.5px; padding-top:6px; padding-bottom:6px;}
+.matrix-table th:nth-child(1), .matrix-table td:nth-child(1){width:192px; min-width:192px; max-width:192px;}
+.matrix-table th:nth-child(2), .matrix-table td:nth-child(2){width:118px; min-width:118px; max-width:118px;}
+.matrix-table th:nth-child(3), .matrix-table td:nth-child(3){width:132px; min-width:132px; max-width:132px;}
+.matrix-table th:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(3)):not(:last-child),
+.matrix-table td:not(:nth-child(1)):not(:nth-child(2)):not(:nth-child(3)):not(:last-child){width:104px; min-width:104px; max-width:104px;}
+.matrix-table th:last-child, .matrix-table td:last-child{width:124px; min-width:124px; max-width:124px;}
+.cell-prev{line-height:1.3;}
+.cell-real-wrap{margin-top:3px; display:flex; align-items:center; gap:3px;}
+.cell-real-label{font-size:7.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); flex:none;}
+.real-input{
+  width:100%; background:var(--surface-2); border:1px solid var(--border-strong); border-radius:5px;
+  padding:2px 3px; font-size:9.5px; font-family:"IBM Plex Mono",monospace; color:var(--accent-strong);
+  text-align:right; min-width:0;
+}
+.real-input::placeholder{color:var(--text-muted); font-family:"IBM Plex Sans",sans-serif;}
+.real-input:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.real-input.has-value{border-color:var(--good); background:rgba(12,163,12,0.08); color:var(--good);}
+.total-real-value{
+  flex:1; text-align:right; font-family:"IBM Plex Mono",monospace; font-size:9.5px; font-weight:600;
+  color:var(--text-muted); padding:2px 3px;
+}
+.total-real-value.has-value{color:var(--good);}
+.edit-select{
+  width:100%; background:var(--surface-2); color:var(--text-primary); border:1px solid var(--border-strong);
+  border-radius:7px; padding:4px 7px; font-size:11.5px; font-family:"IBM Plex Sans",sans-serif; cursor:pointer;
+}
+.edit-select:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.edit-select.frente-select{font-weight:500;}
+.edited-tag{
+  display:inline-block; width:fit-content; margin-top:1px; font-size:9px; text-transform:uppercase; letter-spacing:.05em;
+  color:var(--accent-strong); background:var(--accent-soft); border-radius:999px; padding:1px 6px; vertical-align:middle;
+}
+.matrix-table td.sticky-col, .matrix-table th.sticky-col{
+  position:sticky; left:0; background:var(--surface-1); z-index:3; box-shadow:1px 0 0 var(--border-strong);
+  overflow:hidden;
+}
+.matrix-table th.sticky-col{background:var(--surface-2); z-index:6;}
+.matrix-table td.sticky-col2, .matrix-table th.sticky-col2{
+  position:sticky; left:192px; background:var(--surface-1); z-index:2; box-shadow:1px 0 0 var(--border-strong);
+  overflow:hidden;
+}
+.matrix-table th.sticky-col2{background:var(--surface-2); z-index:6;}
+.matrix-table tr.total-row td{background:var(--surface-2); color:var(--text-primary); font-weight:600; position:sticky; bottom:0;}
+.matrix-table tr.total-row td.sticky-col, .matrix-table tr.total-row td.sticky-col2{background:var(--surface-3);}
+.name-cell{display:flex; flex-direction:column; gap:2px; overflow:hidden;}
+.name-cell .nm{font-weight:500; font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.name-cell .cg{font-size:10.5px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.matrix-table .badge-frente{white-space:normal; line-height:1.25; max-width:100%;}
+
+/* employee table */
+th.sortable{cursor:pointer; user-select:none;}
+th.sortable:hover{color:var(--text-primary);}
+th.sortable .arrow{opacity:0; margin-left:4px;}
+th.sortable.active .arrow{opacity:1; color:var(--accent-strong);}
+.spark{display:block;}
+
+.table-toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:6px; flex-wrap:wrap;}
+.search-input{
+  background:var(--surface-2); border:1px solid var(--border-strong); border-radius:999px;
+  padding:7px 14px; color:var(--text-primary); font-size:12.5px; width:230px; font-family:inherit;
+}
+.search-input:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.search-input::placeholder{color:var(--text-muted);}
+
+.empty-state{padding:32px; text-align:center; color:var(--text-muted); font-size:13px;}
+
+/* ---------- Save / export status ---------- */
+.save-row{display:flex; align-items:center; gap:14px; margin:2px 0 12px; flex-wrap:wrap;}
+.save-status{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:var(--text-muted);}
+.save-status::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--text-muted); flex:none;}
+.save-status.ready::before{background:var(--good);}
+.save-status.saving::before{background:var(--warning); animation:pulse 1s ease-in-out infinite;}
+.save-status.saved::before{background:var(--good);}
+.save-status.error::before{background:var(--critical);}
+.save-status.unavailable::before{background:var(--text-muted);}
+@keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.35;}}
+.sheets-sync-panel{background:var(--surface-2); border:1px solid var(--border-strong); border-radius:10px; padding:12px 14px; margin:-2px 0 12px; display:flex; flex-direction:column; gap:8px;}
+.sheets-sync-fields{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.sheets-sync-fields input{flex:1; min-width:260px; background:var(--surface-1); border:1px solid var(--border-strong); border-radius:8px; padding:7px 12px; color:var(--text-primary); font-size:12.5px; font-family:inherit;}
+.sheets-sync-fields input:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.sheets-sync-fields input::placeholder{color:var(--text-muted);}
+.sheets-sync-status{font-size:11.5px; color:var(--text-muted);}
+.sheets-sync-status.ok{color:var(--good);}
+.sheets-sync-status.error{color:var(--critical);}
+
+/* stack sections */
+.section{margin-bottom:22px;}
+
+footer{margin-top:30px; padding-top:18px; border-top:1px solid rgba(11,11,11,0.1); color:var(--page-ink-muted); font-size:11.5px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;}
+
+@media (max-width:980px){
+  .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .charts-row{grid-template-columns:1fr;}
+}
+@media (max-width:640px){
+  .kpi-grid{grid-template-columns:1fr;}
+  .wrap{padding:18px 14px 48px;}
+}
+</style>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="topbar-left">
+      <img class="logo-mark" src="data:image/png;base64,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fz6LFy/m2c9+Nocccsjjxs8325o1a77+5je/+fVr1qyhWCwyMjLCv/zLv/D2t79dtnRgTLx2uzp98cUX6xe+8AW6u7tJ05Tu7m6+9rWvXb/DDjs8d2v+GGMM//3f/61f/epX6ezszJ8dPT09/O///u9HZ8yY8cGt+QlEhA996EP605/+lM7OThqNBnPmzOErX/nKJXPnzn3VROk68fq/+tWv9D3veQ+lUgkRYXh4mKOOOoovfelLkqbpOGk+keEfeughvfzyy7nppptYsmQJtVqt9TkIWuD8+fM54ogjOPnkkznxxBMFaO3FbI/teMYZZyxbsWIFxWJxqyZ6O4kIzWaTHXfckUsvvVSiTZs28dhjj9HT09NiiM3Z9M457rjjDq688kq6u7vZf//99dxzz+Xoo4+W/LtttnjfqlWrWLZsGaVSabN27WRkjGFkZIR58+aRaQzLAer1OsuWLaOjo+NxNt/En733OOe4/vrrKRaLLFiw4ILXvOY1F7z+9a+XCc5MB7B27VqWLVtGV1fXlOz09gUFqNVqNJvNcffnvcday1133aUf//jHufnmm6nValQqldYmaT/VnXPcdttt/Pa3v+X//u//OP300/Ud73jHW/r6+i7MD5OJ67h+/XqWL1/OyMhIywSbbE3y+dx2221cfvnlfOUrX+Goo47S973vfey5556Sb7B8XZxz81auXMnKlSspFoskScKFF17IiSeeqHvvvbfk5kj7GuTUPkfnnI2iyD366KOrP//5zzMwMMDg4CBpmtLb20uaprtuaX3z+QwNDZ12ySWXsHLlSiqVCjmj3X///VxxxRX//vrXv/6DEw/SyZ7fwMAAy5Ytax0eDz30EOedd94Z//M///OOOI4HtnR41Go1li9f3mL8oaEh1q1bBzBO6818DzaOYzc0NHTal770pR9deumlrF27ljiOKZVKFAqFxx0yK1as4JJLLuGyyy7juOOO03/7t39j0aJFkj9X733f8uXLWb58OcVi8XG+pS2RiNBoNHIBbY21lkKhQBzHxHEo9VwoFCgWi61X/ntHRwc9PT3MmDEDgN///ve86lWv4pvf/Ka2N3vILlSPoqg1bv7KxyuXy+PGnvgqlUrEcZyrq63FbR8riqLWGKVSqfW9QqFAR0cHXV1d9Pf3U6lUWLVqFf/+7//O2WefrdVq9fCJmyKO49Zc8nlvbm6TrU2pVGpJdlW1uZT7zne+o//8z//Mr371q5YWUigUxl273WdSqVTo7e2l0Wjwla98hZe97GUXLFmyRKMoYiJzAky2xvna5WuSz6+zs5Pe3l76+vpwznHVVVfx4he/mGuuuUZzja19XdrXuVKpMDQ0xKc//elxG30yatdOVLUkIlxwwQVzVq1a1Tr08rHbTbbJKJe2P/vZz370wAMP0NvbizGm9ZzK5TKXXXYZo6Ojh28pOjXZellrmTFjBr/85S/56Ec/ui7fw5tjIhF53FpPZrNnGrJ78MEH9YwzzvjR5z//eUZHR+nr66OjowNr7bg1yu+xVCrR29tLsVjkl7/8JS996Uu5+uqrtf2+2p9vO+9ubZ/me6BYLIZnlJ8a7adHkiSMjIxQq9Var9HRUYaHhxkaGmoxeFdXF8YY/u3f/o2f/exn+eZpebUmjq2qrfFGRkaoVqvUajWq1eq4V369RqOBiNQmeuDbJXKaptTrdYaHh6lWq61xR0ZGGBwcJEkSvPcUCgV6e3v5/ve/z4c//OFbJtsYaZqO2zhJkjxubpO98ntIkiSfZ8layze/+U1997vfTZqmLU0CYHR0lNHRUZrNJlEUEUUR9Xq9teb53Pr7+7nnnnt47Wtfy/333z+O+Sdb41zrqtfrrTXM55ivx/DwcOv+enp6GBkZ4ZxzzuHuu+9Way1pmlayccvtY+f3cPXVV3PllVfqRNNjIuVOzkKhMHrzzTfrZZddRnd3d2vveO+npKoaY0jTlEsvvZT8/vM5OecolUrcc889XH/99bdMpqZPpIl7KE1T+vr6uOiii/jmN7/ZWuOpfn+yQ8IYw7Jly/74ute9jltvvZUZM2a0tLU0TRkcHKRarbZMMFVt8VauMff29rJhwwbe/va3s3Tp0kfbeSDfp/lBVa/Xp7RPq9Uqo6OjwITsPGstQ0NDnHrqqbz1rW9laGioJcVyNeeqq67ipptuolAokKYpcRyTpimf/OQnOfbYY0/q6OjYrKPDe8/Xv/51dtppp3a1Y7N2XUdHB4VCYflknzHG0Gg02GmnnfjgBz9Ib28vSZK0/r5+/Xpuuukmrr76aoaHh1s20ezZs/nud7/LC17wAn3Oc54jSZLMjKJooP0aOfO86lWv4nWvex21Wm2LEi7fALvtttv+aZpSKBRGb7rpJv3IRz5CuVwep2qPjo5y8MEHc9ppp3HMMcdQqVTu8N73rV69eudrrrmGyy+/nNWrV9PZ2dmyYZcuXco73vEOvvvd755UqVSunij1c4qiiJGREd70pjfxwhe+kFqtRhRFrY31wAMP8POf/5w77riDcrmMc45yucymTZv45Cc/yUUXXYQxZjRbg3GSOL+mtZbPfvazPPvZz355d3f3pZN51CccnvbTn/40zWaTOI4f59vJnWSTUT72r3/9a7399ttbJp5zrnWY55v/kksu4ZRTTvmLohRpmlKpVPiP//gPFi5cqMcdd5z8JZGC/BknSbLjeeedd+CDDz5IX18fzWYTay3VapWenh5e8pKXcPLJJ7PLLrsMxXF8b71ef9aSJUu44ooruOaaa1p+oTiO+cAHPsDs2bNPzO6pntv7uVkdRRH/9V//xYEHHkij0djinL33lEoloihyj9NTvPfMmzeP/ffff9KVe/WrX82FF16on/jEJ1qbqlQq8eCDD3Lttdde9U//9E9bXPF99tnnZ/Pnzz/liSxobk9OdpCUy2WOPfbYWe3e+5xe9KIXcfrpp+s555zD+vXrWxKj2Wxy2WWX8ZznPGfcBs83dy5l5s2bx+677/6EXNiZ5/nlH/vYx2g2my2naX7av+td7+Lss89+3Hx33nlnjjjiCF796lf/8f3vf/+B119/fcuW7e7u5vbbb+fCCy+86j3vec84+7qd8gNojz324OCDD37cvE888URe//rXz/zQhz607lvf+hZdXV2tw+XGG2/k3nvv1fbnPpmvoFQqsWTJEv77v//7O+95z3subZd67QdnkiQ2jmN3ySWXpDfffPM4ad/ud9AJ0ZP2Ay3/+dvf/jZpmrY0vB122IGddtqJm266iVKpREdHB7///e+55ZZb9MgjjxznXJ0K5WuZJAnnnnsu3/ve9xq77rprMWfArdnP7WtvreWiiy5adsMNN7SEkbWWkZERDjnkED7+8Y+z9957P25iu+++O6eeeio///nP9X3vex8jIyN87nOf47TTTmt9VkRq+VzataXFixe3HMFTIVWdHKufq8dJkth807aftGeddZYcdthhLWdWrhbfeuutj7vARKrVai/ImcA5t9XXVG5idHT0X/L5tb8ajcbMI488Ut74xjdSr9dbD7hYLHL//fezadOm18RxnEu4cfPNTZ7J1mHiK79ezpC/+MUvvnPbbbeNixDU63XOPfdczj33XCkUCgNpmpKmacumzMdZsGDBQV//+tdnHX300YyMjLQ2XqVS4Tvf+Q4rV678aRRFW1STm83mpPNO05RisTjw/ve//5/22GOPlibjvafRaHD77bdvca3za1YqFS666CLuvffecfZn/jwySeRWr179f1/+8pcpFotPyFGaj2GM4a677tLf/OY3VCqVltP3xBNP5AMf+EDLPo6iiGq1yre//e1xzq6pMGz7vMvlMitXruSd73xnYWho6LR8fOdcZSpjWGsZHh4+6eKLL245tPMI1X777cdFF130b3vvvbdMtp/y/fP85z9fvva1r3HhhRdy2mmnSW7atK9RfsDkv1er1dbz3hIv5e9vlvFzdcIY43IgiTGmtQlVlaOOOopmsznuYeUezokPcsLirDHGEEUR1totvqaC1AMwxmxsn2P+iqJowHvPMcccM84+tNayceNGBgcHP9w+dh5OmijFRMTl723ulV8b4IorrmjZdPlpf8wxx3DOOedIfnjmn881mfz3nDnPP//8lpqYb+41a9Zw9dVXvyBb783CzTb3/KIoyjWIKxYtWtRi/PyeV65cucV1zhkhNwk/9alPjXOGTVgzLrzwwjMeffRRSqXSON/ElhiyXZUVEb773e8yODhIFEUkSUJ3dzcnn3wye++9txx22GEtHES5XObaa6/lwQcf1M1FGzZH+R7LIw2///3v+cAHPvCjNg2mPtn32u/De28BfvWrX1316KOPthy4zjmKxSIf/OAHmTFjxn81m81KHMfjnkv7XkjTlMMOO0xOPPFE2RwQLF/z/LlFUZQ7vt2W+CmOY9fSaqe0Mm3UHhdut9Fzm6NtUSYFwNTr9TmNRmNmvV7fsf3/9le9Xt8xSRL7RE7stuuOm2sbE4z7WyZxd27/XruXtX0Dtm/EzTF9PvbatWu/ePfdd+ce6xbTvuIVrwDCBsm/NxnlzL9o0SJ57nOfS71ebz187z033njjFtd3qpRL4YnOzM1Rfi/5pqtUKlx77bX8+Mc/1vYwYy5x77jjDv32t79NZ2dnS6OZxL5/3HXapf3SpUuX/PSnP6VSqeQaHAcccACHHnqoQDDl2p18AwMDXHrppa21mgrlzzY3JZIkoauri+9+97t8/vOfz6NVmwOhte4h/8yNN97Y4oNc0zviiCPITZAoika3NJf8+efmymTrk/89P0wbjQaNRmNmrVbbYyIvtb+SJLH5ft0ifnDiSZ4/wCiKuOeeex4nIXt6etoXpT7xwRpjeNWrXoW1dt1E+zGnKIrYsGED//qv/8qZZ54pbgrq/kTKFyRJkpnFYnHgwQcfpNFotEIZzjl6enqoVCqXbG5hVZVms5lHDZ5trV21uetlqLgBay3333//2e1OtUajwYwZMzjiiCMuyT7rtiSJsvW0quqOP/54fvjDH7Y2cRzHrFq1ipGRkWdXKpVfP5E1aff6O+d49NFHx20sEaG/v39z90e9XmfBggXU63UGBgZacegvfvGLHH/88a/p6em5uN3+/MQnPkGtVqOrq4uRkRH23XdfCoUC7U66bN+Mc+61e+Z/+MMfLl61ahX9/f2t5/Gyl72s9Xye//znv+VLX/rSBatXrwago6ODn/70p7zpTW/6+uzZs9+wNQddzjSvec1r+MMf/sCdd95JpVLBe09PTw+f+cxn2G233fTUU0+VyRyG7Qd4FEUDzjlWrFgxbg957znqqKOm5HTM168tLDzpNdtBUWmacs455xBF0brHDdj2/KrVKq9//et5+9vfLkmS2Mcxfn5it0+g3WljjOH666/XG264oWXHiAhRFLH33ns/bpITaePGjVtU36MoYv369S0VbnPj5HPN5rux/XP5vIvF4sDQ0NBpX/nKV1rOnvxh77TTTsyePftVuROqfYPk6tkPf/hDbrjhBs2lwUTKT/QDDjiAT3ziE7OstQM5DDNnfGMMnZ2dzJ49+1Xtc9sSWWudiLBgwYJxGzezIRkeHn57Z2fnVhl/ohmTX/v//u//9M4776Srq2scLPiAAw7Y7Dj1ep099tiDo446ig996EMtLMY999zD1772tYve/e53X5yDVi677DL99a9/TWdnZ8svdPbZZ/OLX/yC3/72t1Qqlda47ZpLu2AZGho67fLLL6dUCm/XajV23313nvvc534ql/J9fX0XvvCFL7zgC1/4Qiv+/cgjj/DjH//49W984xvf0C71cxNl4prU63X22WcfTj/9dE477bRxkjaKIt7//vez44476kEHHSTtGtFEn1Bm0j17aGiIQqEwbo8vXLiwdX/5/5vb01vTiPJn1X79wcHBLZpPuW8kD+UZYx7v1ReRlqQbGhp6p7V2laqWkiTZZ8WKFeddc801fOtb36JarbZCZM45Zs2axfOe97w72seabDLtqvHmbnyCNmDJysFPpkFkjHyMc+4K51xFQ/y5tG7duitvu+22A7/+9a9z55130tnZSZIkLdvr5JNPzh14fcBA+4PKN9/atWtZsWLFZh+SMYbR0dE8Rl+C4BhtPzydcy1g1FQpv89isTgumtGmMk+qeuYHYc4YSZLsmGsqIyMjb3rkkUcu+MlPfsIll1xC7iDMpfmiRYs49NBD99+clMw3zxlnnLHnNddcc3/ute7s7OSiiy7iec97nu6///6ybt26T37+859v2ZUbN27k5JNP5uSTT5bvfe97OnHTtlP733/yk5/86P7776enp6elOZ1wwgnMmjXr3Y1GY6aI1Jxzo6eccgrf/OY3W97zUqnE9773PV71qlftkWPw8/m3r21O1lo2bdrEvvvuK+eff76+973vbUn9QqHAxo0beec738nll19+VjtUfGIkA4K6P9H+hrGkrMkiUxPvf0u/53+baFZt6fP539u1E1Udr+o756hUKlx55ZVcd911ml8gVw9rtRqDg4MtdJyqEscxa9eu5eyzz2bBggUHtWOWJ5tIV1cXcRy37LjJHkQeb8zGmFQ1ztBRPPbYY5xyyinnich5+amebXo2btzYuqc0TVt24DHHHMOLXvSi/du1hXxB8jnkMdI4jiddTBhDqGX2ch2gs7Nz3Imfx2/r9fqOpVJp+WYHmzAHVWX9+vUtZs9Vx46ODkql0jWb+25HRwef/vSnueCCC7R9POcco6OjDA4Otjzk+ZhJkvCOd7yDjo6Ou5vNZqVQKIxOpoJncf8H3vOe93DrrbeSJEkunfnc5z7HRRddxFe+8pXzcoRdvV6nr6+Pd73rXePQavl4E+3wXH2t1+s7/uAHP2hJ3jRN6e/v58wzzxyCoMnl3znggAPk+OOP1xxGnocbr7rqqvtf9KIXtRxk+RpOpPwZqSpnnHGGLF26VD//+c+3ch86OztZsmQJ73vf+y449dRTW5+deJBkfoZr2s2YnPnbn+OW/DtTofaoRT5+d3d3S8OcjHI0bs5TMEl57VwC5GpBuyc/iiK6u7tbqCznHGvXruWMM87grW99a2eedto+yXby3vPFL36RBQsWPOacm5dLI52QWeecm9ff3//m/PrtB9DEuXrvGRgYaEmvdonVDvAQEdatW8c+++zDpz71qaGOjo67MxV+XDZdfq/5dSc7nCbeU/sBsmDBgpYHOt9UGzZs4K677lp22GGHycRTeiK1azy33npr68BqU2/p7e39r8kkc74+OYO3m0q5ptXd3d0aP88veP/7388pp5wyzvkkk0BprbU0Go2ZBx98sLz85S/Xb3zjG3R3d1Mul/nNb37Df/7nf+pPfvKTFpa9Wq3yhje8gf3226/14NodpZOtpbWWm2++edkf/vAHKpUKqgGptssuu3Dvvfd25wjDfN0LhQKzZs1qaTD5/V566aW88IUvtNZatyXVup0ZG43GzHPPPbfz0UcfHfnxj3/cisP39PRw9dVX89BDD43LO8n3CoBzrlIoFEb7+/vHQauNMdx+++288pWvHCdxp2LrT8UciKKI888/n/333/8x733fZM9Nssy87u7uT+R7exzj5xPNUUPtGz6/yUajQbPZRFXp7e3l/e9/P2effXZnHg9vW/zaZBPfZZddrt9hhx2eu9m73gJtjgHbT7uJYcB2devlL385733ve6/fYYcdnptLgjRNLeDax8437emnn85LXvKSFiJwIuVSsKenB2OMU1V23333aN68eelDDz3UinwMDQ1x1VVXcfjhh2/V25zPu1qt7nfNNde0Dt58s++zzz5Ya0mSxBpjxnk+J65B+yGTr0X7AbnLLrvwrne9i3/8x39sVWLa2vprSPPlbW9725euu+66s1esWNHKlvzKV77SwoWPjo6y5557ctZZZ70lv2bO9O0hwPax8+tfcsklLS97rnk9+uijvPWtb219tv3gy3M28jFLpVIO6EmPOeaYLSYUTfy9UCiMfuxjH3vXI4888pk//elP49T+Bx544HF5FhPXbL/99uPHP/5x61kWCgV+85vfsG7duk/OmDHj3fn9bGmNt3ZA5HskX8eddtqJnXfeeeFmB50w/uNU/fwiORa4fZPkCQGzZ89m9uzZHHXUUbz4xS9mt912kzYnW/ukJ4Vi1uv152R+AWuz3PXN3fzWHtLEsFs+hzz2nat2jUaDQw45hC984QutNOI2c8RNdk3vPbvvvjvHHnvslPSyfA3iOHYnnHAC9957Lx0dHS046He+8x1e9KIX6X777SeNRmNmHMcDEx1NecgriiIuvvjiu+66665W1mQesjrppJPGzXtzlMNj87Fzn0x+b2ma8v73v5/nPe95wcsbRW6C/Tjp8zPGbFRVZs+efc7b3/72s88999xxDNe+fm9/+9vJMwvbYabtGzunNE1nFovFgTvvvFNvvPHGVggvdxxDYPAtOb/ydYqiiNHRUb7zne9wzDHHjNPatqS9WWsHvPf09/d/9gtf+MJnXvaylzE0NNQSgpOll7f5EEYBTjjhBL74xS+2QnrFYpGlS5fyxS9+8bzzzz//3ZlpZeM4bmki+Zo752wcx65Wq+2RJMne3d3dV+RrMPEwaPdd1Gq11t7Z2uHdOiwn/nFkZIQXvOAFvOENb2jZ4fkrjmP6+/vvWLBgwUH5dyZObCqUMetmN+7mTrz2Rc9NkoULF/Kxj32spRZGUcTq1at573vfy8aNG1vZTDfddBOXXHKJnnHGGTLZ2JPNodls5iZNxVq72fgrjPkFRISXvOQlfOc736Farbak7+joKG9729v48pe/rHvvvbe023ztppQxhssuu0w/85nPtOC+IiH3+znPeQ6HH364bCnKUKvVOOusszj11FNbHnVrLZdeeikXX3wxXV1dLQb8/Oc/z2GHHXZWd3d3q05B21ibzZrLv3/66afLFVdcob/+9a/p6Oho7YORkRGe85znkNvYkz3btmdcaL/eZZddxqZNm+jt7W2p+XmyVa7ZTeYc9N7T1dXV8q+Uy2V+9atfsWTJEt1rr71kohm6tXtbvHixfOpTn9I3v/nNm71mO+WHS4a/0Msvv5yenh6cc3R1dfHNb36TuXPn6lve8hbJzY92h7KIkKfxnnfeeT9auXIl3/jGN740e/bsc9q1u3YB1R6RmSr/taJwEyfvnMsLAmx2pImOis15TCejYrH429z2faI08eZyx9ohhxwyDvu+7777cu655+q73/3ulpQoFAp87GMf49BDD9VFixZJ+6Jv6XrZPEe3NN/209d7z6JFi+TMM8/UT3ziE8ycOZMkSSiXyzz88MOceeaZnHXWWXrqqad+atasWe9uH+fuu+/WSy65pJWJllPuoDz33HNb19jcfL337LrrruPsaoCdd975NbfddttFS5YsoVwu09HRwa233spnPvOZCz760Y9uNt9/knstA6P5QfWv//qv3HrrrS1NJddw8rlu7pCCMf8IBBV7+fLlN1955ZVUKhVEpGVfv+IVr2hpMJOhOXMn8x/+8AfuuOOOVtrq+vXr+f73v88HP/jBcWu0NcrnfeKJJ8p73vMePf/888dlV25hbRAR3vWud3HDDTdQrVZbzuFiscjH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" alt="Performance Praia Grande">
+      <div class="title-block">
+        <span class="eyebrow">Consórcio Eficiência Praia Grande &middot; Contrato SBPG</span>
+        <h1>Histograma de Custo com Pessoal — Projeção x Realizado</h1>
+        <div class="subtitle">Controle HH por frente de serviço, projetado colaborador a colaborador até o fim do horizonte contratual.</div>
+      </div>
+    </div>
+    <div class="meta">
+      <a class="btn btn-link" id="custoGeralBtn" href="#" target="_blank" rel="noopener">Custo Geral <span class="chev">&#8599;</span></a>
+      <span class="src" id="rangeLabel">—</span>
+      <span>Base: CONTROLE INDIRETOS · NOVO_HISTOGRAMA_6.xlsx</span>
+    </div>
+  </div>
+
+  <div class="filterbar">
+    <div class="filter-group pop-wrap" id="frenteFilterWrap">
+      <span class="filter-label">Família</span>
+      <button class="btn" id="frenteBtn" aria-expanded="false">
+        <span id="frenteBtnLabel">Todas as famílias</span>
+        <span class="count" id="frenteCount">8</span>
+        <span class="chev">&#9662;</span>
+      </button>
+      <div class="popover" id="frentePopover">
+        <div class="popover-actions">
+          <button class="link-btn" id="frenteAll">Selecionar todas</button>
+          <button class="link-btn" id="frenteNone">Limpar</button>
+        </div>
+        <div id="frenteChecks"></div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">Período</span>
+      <div class="segmented" id="granSeg">
+        <button data-gran="mes" class="active">Mês</button>
+        <button data-gran="ano">Ano</button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">De</span>
+      <select class="field" id="fromSelect"></select>
+      <span class="filter-label">até</span>
+      <select class="field" id="toSelect"></select>
+    </div>
+
+    <div class="spacer"></div>
+    <div class="summary" id="filterSummary"></div>
+    <button class="reset-btn" id="resetBtn">Limpar filtros</button>
+  </div>
+
+  <div class="section kpi-grid" id="kpiGridFinance"></div>
+  <div class="section kpi-grid" id="kpiGridWorkforce"></div>
+
+  <div class="section charts-row">
+    <div class="chart-stack">
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">Evolução do custo</span>
+          <span class="panel-note" id="evoNote">custo do período &middot; barras</span>
+        </div>
+        <div class="chart-box"><div id="evoChart" class="chart-fill"></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">Pessoas ativas na folha</span>
+          <span class="panel-note">mesma escala de tempo do gráfico acima</span>
+        </div>
+        <div class="chart-box small"><div id="headcountChart" class="chart-fill"></div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head">
+        <span class="panel-title">Custo por família</span>
+        <span class="panel-note">no período selecionado</span>
+      </div>
+      <div class="frente-chart-box"><div id="frenteChart" class="chart-fill"></div></div>
+    </div>
+  </div>
+
+  <div class="section panel">
+    <div class="panel-head">
+      <span class="panel-title">Projeção mês a mês &middot; por colaborador</span>
+      <span class="panel-note">mesma leitura lado a lado da aba Controle HH — role para o lado para ver todos os meses do período</span>
+    </div>
+    <div class="table-toolbar">
+      <div class="filter-group pop-wrap" id="matFrenteWrap">
+        <span class="filter-label">Família</span>
+        <button class="btn" id="matFrenteBtn" aria-expanded="false">
+          <span id="matFrenteBtnLabel">Todas</span>
+          <span class="count" id="matFrenteCount">8</span>
+          <span class="chev">&#9662;</span>
+        </button>
+        <div class="popover" id="matFrentePopover">
+          <div class="popover-actions">
+            <button class="link-btn" id="matFrenteAll">Selecionar todas</button>
+            <button class="link-btn" id="matFrenteNone">Limpar</button>
+          </div>
+          <div id="matFrenteChecks"></div>
+        </div>
+      </div>
+      <div class="filter-group pop-wrap" id="matColabWrap">
+        <span class="filter-label">Colaborador</span>
+        <button class="btn" id="matColabBtn" aria-expanded="false">
+          <span id="matColabBtnLabel">Todos</span>
+          <span class="count" id="matColabCount">31</span>
+          <span class="chev">&#9662;</span>
+        </button>
+        <div class="popover popover-wide" id="matColabPopover">
+          <input class="search-input" id="matColabSearch" placeholder="Buscar colaborador…" style="width:100%; margin-bottom:8px;">
+          <div class="popover-actions">
+            <button class="link-btn" id="matColabAll">Selecionar todos</button>
+            <button class="link-btn" id="matColabNone">Limpar</button>
+          </div>
+          <div id="matColabChecks" class="popover-scroll"></div>
+        </div>
+      </div>
+      <span class="panel-note" id="matrixSummary" style="margin-left:auto;"></span>
+    </div>
+    <div class="panel-note" style="margin:-2px 0 10px;">Família e previsão de desligamento são editáveis diretamente na tabela — ao alterar, a projeção mensal e a rescisão são recalculadas automaticamente (estimativa) para aquele colaborador, marcado como <span class="edited-tag" style="position:static; display:inline-block; margin-left:2px;">simulado</span>. Abaixo de cada valor projetado, o campo <b>Real</b> guarda o valor efetivamente realizado naquele mês — atualizado mensalmente a partir do arquivo de FOPAG.</div>
+    <div class="save-row">
+      <button class="btn btn-save" id="saveAllBtn" type="button">SALVAR ALTERAÇÕES</button>
+      <span class="save-status" id="saveStatus" hidden></span>
+    </div>
+    <div class="save-row" id="sheetsSyncToggleRow" hidden>
+      <button class="link-btn" id="sheetsSyncToggleBtn" type="button">&#128279; Sincronizar entre computadores (Google Sheets)</button>
+    </div>
+    <div class="sheets-sync-panel" id="sheetsSyncPanel" hidden>
+      <div class="sheets-sync-fields">
+        <input type="text" id="sheetsUrlInput" placeholder="Cole aqui a URL do Google Apps Script (termina em /exec)">
+        <button class="btn" id="sheetsSyncSaveBtn" type="button">Salvar e conectar</button>
+        <button class="link-btn" id="sheetsSyncDisconnectBtn" type="button" hidden>Desconectar</button>
+      </div>
+      <span class="sheets-sync-status" id="sheetsSyncStatus">Sincronização automática não configurada.</span>
+    </div>
+    <div class="table-scroll">
+      <table class="matrix-table" id="matrixTable"></table>
+    </div>
+  </div>
+
+  <div class="section panel">
+    <div class="panel-head">
+      <span class="panel-title">Custo por colaborador</span>
+      <span class="panel-note">clique nos cabeçalhos para ordenar</span>
+    </div>
+    <div class="table-toolbar">
+      <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <select class="field" id="empFiltroFamilia"><option value="">Todas as famílias</option></select>
+        <select class="field" id="empFiltroCargo"><option value="">Todos os cargos</option></select>
+        <input class="search-input" id="empSearch" placeholder="Buscar por nome ou cargo…">
+      </div>
+      <span class="panel-note" id="empCount"></span>
+    </div>
+    <div class="table-scroll">
+      <table id="empTable"></table>
+    </div>
+  </div>
+
+  <footer>
+    <span>Todos os números vêm por fórmula da aba CONTROLE INDIRETOS / PREMISSAS do arquivo original. Base de dados: PERFORMANCE_2.xlsx. Edições de família/desligamento salvam automaticamente na versão publicada deste link. No arquivo baixado em .html, ative "Sincronizar entre computadores" (painel acima) para salvar as edições numa planilha Google e compartilhá-las entre computadores.</span>
+    <span id="genDate"></span>
+  </footer>
+</div>
+
+<script>
+/* ==================== DATA ==================== */
+const PAYLOAD = {"months":["2026-07","2026-08","2026-09","2026-10","2026-11","2026-12","2027-01","2027-02","2027-03","2027-04","2027-05","2027-06","2027-07","2027-08","2027-09","2027-10","2027-11","2027-12","2028-01","2028-02","2028-03","2028-04","2028-05","2028-06","2028-07","2028-08","2028-09","2028-10","2028-11","2028-12","2029-01","2029-02","2029-03","2029-04","2029-05"],"monthLabels":["jul/26","ago/26","set/26","out/26","nov/26","dez/26","jan/27","fev/27","mar/27","abr/27","mai/27","jun/27","jul/27","ago/27","set/27","out/27","nov/27","dez/27","jan/28","fev/28","mar/28","abr/28","mai/28","jun/28","jul/28","ago/28","set/28","out/28","nov/28","dez/28","jan/29","fev/29","mar/29","abr/29","mai/29"],"frenteColors":{"ADUTORA":"#2a78d6","CANTEIRO":"#eb6834","ENGENHARIA":"#1baf7a","PESQUISA DE VAZAMENTO":"#eda100","REPARO DE VAZAMENTO":"#e87ba4","REPOSIÇÃO":"#008300","REPOSIÇÃO ASFALTICA":"#4a3aa7","SETORIZAÇÃO":"#e34948"},"employees":[{"matricula":36,"frente":"ADUTORA","nome":"ANDERSON DA SILVA CHICHINATO","cargo":"SUPERVISOR DE OBRA II","inicio":"2024-08-05","situacao":"Ativo","periodo_turno":"Diurno","salario":8804.04,"prev_deslig":"2026-12","custo_aprox":15490.256074368,"monthly":[15490.256074368,15490.256074368,21003.746074368,21003.746074368,19892.276074368005,56359.00540770134,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":149239.28577954133,"valor_final_rescisao":56359.00540770134,"verbas_rescisorias":40868.74933333333,"ultimo_mes_folha":"2026-12"},{"matricula":50,"frente":"ADUTORA","nome":"BRUNO VENICIUS RODRIGUES DOS SANTOS","cargo":"LIDER DE FRENTE II","inicio":"2024-09-02","situacao":"Ativo","periodo_turno":"Diurno","salario":4274.74,"prev_deslig":"2026-12","custo_aprox":8054.4952558079995,"monthly":[8054.4952558079995,8054.4952558079995,9227.115255808,9227.115255808,10191.865255808,25981.008100252446,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":70736.09437929244,"valor_final_rescisao":25981.008100252446,"verbas_rescisorias":17926.512844444445,"ultimo_mes_folha":"2026-12"},{"matricula":174,"frente":"REPOSIÇÃO","nome":"DANILO VIEIRA INACIO","cargo":"PEDREIRO","inicio":"2025-05-12","situacao":"Ativo","periodo_turno":"Diurno","salario":2801.99,"prev_deslig":"2026-12","custo_aprox":5582.781299007999,"monthly":[5582.781299007999,5582.781299007999,5692.091299008,5692.091299008,6983.776299007999,15877.600659008001,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":45411.122154048,"valor_final_rescisao":15877.600659008001,"verbas_rescisorias":10294.819360000001,"ultimo_mes_folha":"2026-12"},{"matricula":279,"frente":"CANTEIRO","nome":"DIEGO GONCALVES DA SILVA","cargo":"SERVENTE DE OBRAS","inicio":"2026-05-27","situacao":"Ativo","periodo_turno":"Diurno","salario":2302.75,"prev_deslig":"2029-05","custo_aprox":4350.5534928,"monthly":[4350.5534928,4350.5534928,5589.9234928,5589.9234928,5118.136826133333,5683.078159466666,4350.5534928,4350.5534928,4350.5534928,4350.5534928,4589.833934904,4589.833934904,4589.833934904,4589.833934904,4589.833934904,4589.833934904,5741.208934904,6588.620934904,4589.833934904,4589.833934904,4589.833934904,4589.833934904,4842.27480132372,4842.27480132372,4842.27480132372,4842.27480132372,4842.27480132372,4842.27480132372,5993.64980132372,6841.06180132372,4842.27480132372,4842.27480132372,4842.27480132372,4842.27480132372,13829.728686864602],"total":181399.74044959722,"valor_final_rescisao":11777.58592168889,"verbas_rescisorias":7427.03242888889,"ultimo_mes_folha":"2029-05"},{"matricula":241,"frente":"PESQUISA DE VAZAMENTO","nome":"EMERSON GABRIEL DOS SANTOS SILVA","cargo":"SERVENTE DE OBRAS","inicio":"2025-07-17","situacao":"Ativo","periodo_turno":"Diurno","salario":2226,"prev_deslig":"2026-12","custo_aprox":4566.1486592,"monthly":[4566.1486592,4566.1486592,4566.1486592,4566.1486592,5679.1486592,10622.9128592,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":34566.6561552,"valor_final_rescisao":10622.9128592,"verbas_rescisorias":6056.7642,"ultimo_mes_folha":"2026-12"},{"matricula":139,"frente":"REPARO DE VAZAMENTO","nome":"FELIPE DERLIS GONCALVES HERMENEGILDO","cargo":"ENCANADOR","inicio":"2025-03-20","situacao":"Ativo","periodo_turno":"Diurno","salario":2801.99,"prev_deslig":"2029-05","custo_aprox":5664.451299007999,"monthly":[5664.451299007999,5664.451299007999,6152.641299007999,6152.641299007999,7065.446299007999,8096.578619007999,5664.451299007999,5664.451299007999,5664.451299007999,5664.451299007999,5975.996120453439,5975.996120453439,5975.996120453439,5975.996120453439,5975.996120453439,5975.996120453439,7376.991120453439,8408.123440453439,5975.996120453439,5975.996120453439,5975.996120453439,5975.996120453439,6304.675907078378,6304.675907078378,6304.675907078378,6304.675907078378,6304.675907078378,6304.675907078378,7705.670907078378,8736.803227078377,6304.675907078378,6304.675907078378,6304.675907078378,6304.675907078378,19177.23580705528],"total":235665.560087517,"valor_final_rescisao":16331.596054563553,"verbas_rescisorias":10667.144755555553,"ultimo_mes_folha":"2029-05"},{"matricula":265,"frente":"CANTEIRO","nome":"GABRIEL HENRIQUE DE OLIVEIRA SANTOS","cargo":"APRENDIZ","inicio":"2026-02-10","situacao":"Ativo","periodo_turno":"Diurno","salario":884.18,"prev_deslig":"2027-02","custo_aprox":1344.95,"monthly":[1344.95,1344.95,1344.95,1344.95,1750.1991666666668,2048.4625533333333,1344.95,1344.95,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":11868.36172,"valor_final_rescisao":1344.95,"verbas_rescisorias":0,"ultimo_mes_folha":"2027-02"},{"matricula":9,"frente":"CANTEIRO","nome":"GABRIELE MARQUES MENEZES SILVA","cargo":"ANALISTA ADMINISTRATIVO I","inicio":"2024-07-04","situacao":"Ativo","periodo_turno":"Diurno","salario":4038.41,"prev_deslig":"2029-05","custo_aprox":7586.686404671999,"monthly":[7586.686404671999,7586.686404671999,7714.536404672,7714.536404672,9605.891404671998,11092.026284672,7586.686404671999,7586.686404671999,7586.686404671999,7586.686404671999,8003.954156928959,8003.954156928959,8003.954156928959,8003.954156928959,8003.954156928959,8003.954156928959,10023.15915692896,11509.294036928957,8003.954156928959,8003.954156928959,8003.954156928959,8003.954156928959,8444.171635560051,8444.171635560051,8444.171635560051,8444.171635560051,8444.171635560051,8444.171635560051,10463.376635560051,11949.51151556005,8444.171635560051,8444.171635560051,8444.171635560051,8444.171635560051,27363.572808575736],"total":317437.28100516385,"valor_final_rescisao":23303.192504672,"verbas_rescisorias":15716.506099999999,"ultimo_mes_folha":"2029-05"},{"matricula":60,"frente":"REPOSIÇÃO ASFALTICA","nome":"GIVALDO MOREIRA DOS SANTOS","cargo":"RASTELEIRO","inicio":"2024-09-02","situacao":"Ativo","periodo_turno":"Diurno","salario":2801.99,"prev_deslig":"2026-12","custo_aprox":5729.601299007999,"monthly":[5729.601299007999,5729.601299007999,6043.231299007999,6043.231299007999,7130.596299007999,20797.847174563554,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":51474.10866960355,"valor_final_rescisao":20797.847174563554,"verbas_rescisorias":15068.245875555554,"ultimo_mes_folha":"2026-12"},{"matricula":86,"frente":"REPOSIÇÃO","nome":"HERALDO PINHEIRO FERREIRA","cargo":"LIDER DE FRENTE","inicio":"2025-01-13","situacao":"Ativo","periodo_turno":"Diurno","salario":3232.31,"prev_deslig":"2029-05","custo_aprox":6784.128015552,"monthly":[6784.128015552,6784.128015552,6921.448015552,6921.448015552,8400.283015552,9589.773095552,6784.128015552,6784.128015552,6784.128015552,6784.128015552,7157.255056407359,7157.255056407359,7157.255056407359,7157.255056407359,7157.255056407359,7157.255056407359,8773.41005640736,9962.90013640736,7157.255056407359,7157.255056407359,7157.255056407359,7157.255056407359,7550.904084509764,7550.904084509764,7550.904084509764,7550.904084509764,7550.904084509764,7550.904084509764,9167.059084509765,10356.549164509765,7550.904084509764,7550.904084509764,7550.904084509764,7550.904084509764,25795.854262084118],"total":283675.0843486096,"valor_final_rescisao":21968.101968885334,"verbas_rescisorias":15183.973953333334,"ultimo_mes_folha":"2029-05"},{"matricula":212,"frente":"SETORIZAÇÃO","nome":"IZAQUE RAMOS BATISTA","cargo":"AUXILIAR DE SANEAMENTO","inicio":"2025-06-16","situacao":"Ativo","periodo_turno":"Diurno","salario":2302.75,"prev_deslig":"2029-05","custo_aprox":4971.2234928,"monthly":[4971.2234928,4971.2234928,5994.3434928,5994.3434928,6122.5984928,6970.0104928,4971.2234928,4971.2234928,4971.2234928,4971.2234928,5244.640784904,5244.640784904,5244.640784904,5244.640784904,5244.640784904,5244.640784904,6396.015784904,7243.427784904,5244.640784904,5244.640784904,5244.640784904,5244.640784904,5533.096028073719,5533.096028073719,5533.096028073719,5533.096028073719,5533.096028073719,5533.096028073719,6684.471028073719,7531.883028073719,5533.096028073719,5533.096028073719,5533.096028073719,5533.096028073719,23693.948959988167],"total":214235.75164372075,"valor_final_rescisao":20178.090692799997,"verbas_rescisorias":15206.867199999997,"ultimo_mes_folha":"2029-05"},{"matricula":272,"frente":"REPARO DE VAZAMENTO","nome":"JOAO VICTOR MENDES DOS SANTOS","cargo":"SERVENTE DE OBRAS","inicio":"2026-05-07","situacao":"Ativo","periodo_turno":"Diurno","salario":2189.97,"prev_deslig":"2026-12","custo_aprox":4533.777829823999,"monthly":[4533.777829823999,4533.777829823999,5431.977829823999,5431.977829823999,5263.767829823999,12319.643643157331,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":37514.92279227733,"valor_final_rescisao":12319.643643157331,"verbas_rescisorias":7785.865813333332,"ultimo_mes_folha":"2026-12"},{"matricula":242,"frente":"SETORIZAÇÃO","nome":"JULIO CESAR LIMA DE CARVALHO","cargo":"AUXILIAR DE SANEAMENTO","inicio":"2025-07-17","situacao":"Ativo","periodo_turno":"Diurno","salario":2302.75,"prev_deslig":"2029-05","custo_aprox":4971.2234928,"monthly":[4971.2234928,4971.2234928,6155.6734928,6155.6734928,6122.5984928,6970.0104928,4971.2234928,4971.2234928,4971.2234928,4971.2234928,5244.640784904,5244.640784904,5244.640784904,5244.640784904,5244.640784904,5244.640784904,6396.015784904,7243.427784904,5244.640784904,5244.640784904,5244.640784904,5244.640784904,5533.096028073719,5533.096028073719,5533.096028073719,5533.096028073719,5533.096028073719,5533.096028073719,6684.471028073719,7531.883028073719,5533.096028073719,5533.096028073719,5533.096028073719,5533.096028073719,23731.75398984388],"total":214596.21667357648,"valor_final_rescisao":20210.2859728,"verbas_rescisorias":15239.06248,"ultimo_mes_folha":"2029-05"},{"matricula":281,"frente":"ADUTORA","nome":"LUCAS DOS SANTOS PRADO","cargo":"MOTORISTA DE CAMINHAO I","inicio":"2026-06-09","situacao":"Ativo","periodo_turno":"Diurno","salario":3013.53,"prev_deslig":"2026-12","custo_aprox":5756.924797376,"monthly":[5756.924797376,5756.924797376,6778.234797376001,6778.234797376001,6635.871047376,17711.155597376,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":49417.345834256004,"valor_final_rescisao":17711.155597376,"verbas_rescisorias":11954.2308,"ultimo_mes_folha":"2026-12"},{"matricula":73,"frente":"ADUTORA","nome":"LUIZ CLAUDIO BELMIRO","cargo":"LIDER DE FRENTE II","inicio":"2024-10-04","situacao":"Ativo","periodo_turno":"Diurno","salario":4274.74,"prev_deslig":"2029-05","custo_aprox":8127.9952558079995,"monthly":[8127.9952558079995,8127.9952558079995,10539.815255808,10539.815255808,10265.365255808,11838.469575808,8127.9952558079995,8127.9952558079995,8127.9952558079995,8127.9952558079995,8575.034994877438,8575.034994877438,8575.034994877438,8575.034994877438,8575.034994877438,8575.034994877438,10712.404994877437,12285.509314877438,8575.034994877438,8575.034994877438,8575.034994877438,8575.034994877438,9046.661919595697,9046.661919595697,9046.661919595697,9046.661919595697,9046.661919595697,9046.661919595697,11184.031919595698,12757.136239595697,9046.661919595697,9046.661919595697,9046.661919595697,9046.661919595697,37614.81056848513],"total":352722.2990602427,"valor_final_rescisao":32033.286655808002,"verbas_rescisorias":23905.291400000002,"ultimo_mes_folha":"2029-05"},{"matricula":269,"frente":"ADUTORA","nome":"MARCELO RODRIGUES DUARTE","cargo":"SERVENTE DE OBRAS","inicio":"2026-04-13","situacao":"Ativo","periodo_turno":"Diurno","salario":2302.75,"prev_deslig":"2029-05","custo_aprox":4595.5534928,"monthly":[4595.5534928,4595.5534928,6022.2334928,6022.2334928,5459.0847428,6094.6437428,4595.5534928,4595.5534928,4595.5534928,4595.5534928,4848.308934903999,4848.308934903999,4848.308934903999,4848.308934903999,4848.308934903999,4848.308934903999,5999.683934903999,6847.0959349039995,4848.308934903999,4848.308934903999,4848.308934903999,4848.308934903999,5114.965926323719,5114.965926323719,5114.965926323719,5114.965926323719,5114.965926323719,5114.965926323719,6266.340926323719,7113.752926323719,5114.965926323719,5114.965926323719,5114.965926323719,5114.965926323719,14358.19751027461],"total":191389.33627300727,"valor_final_rescisao":12227.637192799999,"verbas_rescisorias":7632.083699999999,"ultimo_mes_folha":"2029-05"},{"matricula":201,"frente":"SETORIZAÇÃO","nome":"MATEUS XAVIER MORENO DA SILVA","cargo":"SERVENTE DE OBRAS","inicio":"2025-05-26","situacao":"Sem folha","periodo_turno":"Diurno","salario":1970.97,"prev_deslig":"2029-05","custo_aprox":4465.075145024,"monthly":[4465.075145024,4465.075145024,4465.075145024,4465.075145024,5450.560145024,6175.877105024,4465.075145024,4465.075145024,4465.075145024,4465.075145024,4710.65427800032,4710.65427800032,4710.65427800032,4710.65427800032,4710.65427800032,4710.65427800032,5696.13927800032,6421.45623800032,4710.65427800032,4710.65427800032,4710.65427800032,4710.65427800032,4969.740263290338,4969.740263290338,4969.740263290338,4969.740263290338,4969.740263290338,4969.740263290338,5955.225263290337,6680.5422232903375,4969.740263290338,4969.740263290338,4969.740263290338,4969.740263290338,16815.588693643473],"total":185719.93551937133,"valor_final_rescisao":14320.385102801778,"verbas_rescisorias":9855.309957777778,"ultimo_mes_folha":"2029-05"},{"matricula":39,"frente":"SETORIZAÇÃO","nome":"MIGUEL MAXIMO DIAS JUNIOR","cargo":"AUXILIAR DE SANEAMENTO","inicio":"2024-08-05","situacao":"Ativo","periodo_turno":"Diurno","salario":2302.75,"prev_deslig":"2029-05","custo_aprox":5156.3534928,"monthly":[5156.3534928,5156.3534928,5451.7334928,5451.7334928,6307.7284928,7155.1404928,5156.3534928,5156.3534928,5156.3534928,5156.3534928,5439.952934903999,5439.952934903999,5439.952934903999,5439.952934903999,5439.952934903999,5439.952934903999,6591.327934903999,7438.739934904,5439.952934903999,5439.952934903999,5439.952934903999,5439.952934903999,5739.1503463237195,5739.1503463237195,5739.1503463237195,5739.1503463237195,5739.1503463237195,5739.1503463237195,6890.5253463237195,7737.93734632372,5739.1503463237195,5739.1503463237195,5739.1503463237195,5739.1503463237195,19707.545617069303],"total":215461.565919802,"valor_final_rescisao":16783.215135022223,"verbas_rescisorias":11626.861642222224,"ultimo_mes_folha":"2029-05"},{"matricula":189,"frente":"REPOSIÇÃO ASFALTICA","nome":"NILSON GOMES ALVES","cargo":"MOTORISTA DE CAMINHAO","inicio":"2025-05-19","situacao":"Ativo","periodo_turno":"Diurno","salario":2801.99,"prev_deslig":"2029-05","custo_aprox":6136.731299007999,"monthly":[6136.731299007999,6136.731299007999,6440.061299007999,6440.061299007999,7537.726299007999,8568.858619007999,6136.731299007999,6136.731299007999,6136.731299007999,6136.731299007999,6474.251520453438,6474.251520453438,6474.251520453438,6474.251520453438,6474.251520453438,6474.251520453438,7875.246520453438,8906.378840453439,6474.251520453438,6474.251520453438,6474.251520453438,6474.251520453438,6830.335354078377,6830.335354078377,6830.335354078377,6830.335354078377,6830.335354078377,6830.335354078377,8231.330354078378,9262.462674078377,6830.335354078377,6830.335354078377,6830.335354078377,6830.335354078377,27022.46153542824],"total":260150.84397989014,"valor_final_rescisao":23012.697483452448,"verbas_rescisorias":16875.96618444445,"ultimo_mes_folha":"2029-05"},{"matricula":100,"frente":"ADUTORA","nome":"NILTON JESUS CRUZ","cargo":"OPERADOR DE RETROESCAVADEIRA","inicio":"2025-02-03","situacao":"Ativo","periodo_turno":"Diurno","salario":3761.27,"prev_deslig":"2026-12","custo_aprox":6362.606494784,"monthly":[6362.606494784,6362.606494784,6379.506494783999,6379.506494783999,8243.241494783999,17263.680294784,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":50991.147768704,"valor_final_rescisao":17263.680294784,"verbas_rescisorias":10901.073800000002,"ultimo_mes_folha":"2026-12"},{"matricula":110,"frente":"ADUTORA","nome":"RICARDO ANDRE PONTES","cargo":"OPER. ESCAVADEIRA HIDRAULICA","inicio":"2025-02-13","situacao":"Ativo","periodo_turno":"Diurno","salario":4658.99,"prev_deslig":"2026-12","custo_aprox":8698.676393407999,"monthly":[8698.676393407999,8698.676393407999,9984.316393407998,9984.316393407998,11028.171393408,32062.639993407996,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":80456.79696044799,"valor_final_rescisao":32062.639993407996,"verbas_rescisorias":23363.9636,"ultimo_mes_folha":"2026-12"},{"matricula":277,"frente":"REPOSIÇÃO","nome":"ROBSON CLAYTON DE OLIVEIRA","cargo":"PEDREIRO","inicio":"2026-05-14","situacao":"Ativo","periodo_turno":"Diurno","salario":2801.99,"prev_deslig":"2029-05","custo_aprox":5386.781299007999,"monthly":[5386.781299007999,5386.781299007999,6089.021299007999,6089.021299007999,6320.777965674666,7008.199512341333,5386.781299007999,5386.781299007999,5386.781299007999,5386.781299007999,5683.054270453439,5683.054270453439,5683.054270453439,5683.054270453439,5683.054270453439,5683.054270453439,7084.049270453439,8115.181590453439,5683.054270453439,5683.054270453439,5683.054270453439,5683.054270453439,5995.622255328378,5995.622255328378,5995.622255328378,5995.622255328378,5995.622255328378,5995.622255328378,7396.617255328378,8427.749575328377,5995.622255328378,5995.622255328378,5995.622255328378,5995.622255328378,20567.537931671144],"total":226205.60875113294,"valor_final_rescisao":17515.596341230223,"verbas_rescisorias":12128.815042222222,"ultimo_mes_folha":"2029-05"},{"matricula":116,"frente":"ADUTORA","nome":"SANDRO PATRICIO DA SILVA","cargo":"ENCANADOR","inicio":"2025-02-17","situacao":"Ativo","periodo_turno":"Diurno","salario":2801.99,"prev_deslig":"2026-12","custo_aprox":6060.321299007999,"monthly":[6060.321299007999,6060.321299007999,7219.271299007999,7219.271299007999,7461.316299007999,19507.659499007998,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":53528.16099404799,"valor_final_rescisao":19507.659499007998,"verbas_rescisorias":13447.3382,"ultimo_mes_folha":"2026-12"},{"matricula":167,"frente":"CANTEIRO","nome":"SARAH NASCIMENTO SILVA","cargo":"ANALISTA ADMINISTRATIVO","inicio":"2025-05-08","situacao":"Ativo","periodo_turno":"Diurno","salario":2926.39,"prev_deslig":"2029-05","custo_aprox":5818.713335488,"monthly":[5818.713335488,5818.713335488,5825.293335488,5825.293335488,7281.9083354879995,8358.819855488,5818.713335488,5818.713335488,5818.713335488,5818.713335488,6138.74256893984,6138.74256893984,6138.74256893984,6138.74256893984,6138.74256893984,6138.74256893984,7601.937568939839,8678.84908893984,6138.74256893984,6138.74256893984,6138.74256893984,6138.74256893984,6476.37341023153,6476.37341023153,6476.37341023153,6476.37341023153,6476.37341023153,6476.37341023153,7939.56841023153,9016.47993023153,6476.37341023153,6476.37341023153,6476.37341023153,6476.37341023153,22110.994935167575],"total":243702.5846001039,"valor_final_rescisao":18830.025415488002,"verbas_rescisorias":13011.312080000003,"ultimo_mes_folha":"2029-05"},{"matricula":5,"frente":"ENGENHARIA","nome":"TAINA VIEIRA LIMA SANTOS","cargo":"ANALISTA DE ENGENHARIA JR","inicio":"2024-07-01","situacao":"Ativo","periodo_turno":"Diurno","salario":4249.11,"prev_deslig":"2029-05","custo_aprox":7955.457394111999,"monthly":[7955.457394111999,7955.457394111999,9707.317394111999,9707.317394111999,10080.012394111998,11643.684874111997,7955.457394111999,7955.457394111999,7955.457394111999,7955.457394111999,8393.007550788157,8393.007550788157,8393.007550788157,8393.007550788157,8393.007550788157,8393.007550788157,10517.562550788158,12081.235030788157,8393.007550788157,8393.007550788157,8393.007550788157,8393.007550788157,8854.622966081506,8854.622966081506,8854.622966081506,8854.622966081506,8854.622966081506,8854.622966081506,10979.177966081506,12542.850446081506,8854.622966081506,8854.622966081506,8854.622966081506,8854.622966081506,27746.086420121756],"total":335214.2940036777,"valor_final_rescisao":23628.94632300089,"verbas_rescisorias":15673.488928888892,"ultimo_mes_folha":"2029-05"},{"matricula":58,"frente":"CANTEIRO","nome":"THAIS MARIA CRUZ DE ARAUJO","cargo":"AUXILIAR DE LIMPEZA","inicio":"2024-09-02","situacao":"Ativo","periodo_turno":"Diurno","salario":2302.75,"prev_deslig":"2029-05","custo_aprox":4767.0534928,"monthly":[4767.0534928,4767.0534928,4792.453492799999,4792.453492799999,5918.4284928,6765.8404928,4767.0534928,4767.0534928,4767.0534928,4767.0534928,5029.241434903999,5029.241434903999,5029.241434903999,5029.241434903999,5029.241434903999,5029.241434903999,6180.616434903999,7028.028434903999,5029.241434903999,5029.241434903999,5029.241434903999,5029.241434903999,5305.849713823719,5305.849713823719,5305.849713823719,5305.849713823719,5305.849713823719,5305.849713823719,6457.224713823719,7304.636713823719,5305.849713823719,5305.849713823719,5305.849713823719,5305.849713823719,16992.029235856822],"total":198184.9439485895,"valor_final_rescisao":14470.644279466667,"verbas_rescisorias":9703.590786666668,"ultimo_mes_folha":"2029-05"},{"matricula":29,"frente":"CANTEIRO","nome":"VICTOR FERNANDES CASSIMIRO DOS SANTOS","cargo":"ANALISTA DE SUPRIMENTOS PLENO","inicio":"2024-07-15","situacao":"Ativo","periodo_turno":"Diurno","salario":3901.07,"prev_deslig":"2029-05","custo_aprox":7378.611194944,"monthly":[7378.611194944,7378.611194944,8788.971194944,8788.971194944,9329.146194944,10764.739954943998,7378.611194944,7378.611194944,7378.611194944,7378.611194944,7784.43481066592,7784.43481066592,7784.43481066592,7784.43481066592,7784.43481066592,7784.43481066592,9734.96981066592,11170.56357066592,7784.43481066592,7784.43481066592,7784.43481066592,7784.43481066592,8212.578725252546,8212.578725252546,8212.578725252546,8212.578725252546,8212.578725252546,8212.578725252546,10163.113725252546,11598.707485252546,8212.578725252546,8212.578725252546,8212.578725252546,8212.578725252546,27902.20943403621],"total":312483.1950944977,"valor_final_rescisao":23761.902814944002,"verbas_rescisorias":16383.291620000002,"ultimo_mes_folha":"2029-05"},{"matricula":164,"frente":"CANTEIRO","nome":"VIVIANE DOS SANTOS SILVA","cargo":"TECNICO EM SEG. DO TRABALHO","inicio":"2025-05-08","situacao":"Ativo","periodo_turno":"Diurno","salario":4877.12,"prev_deslig":"2029-05","custo_aprox":8973.417551104,"monthly":[8973.417551104,8973.417551104,9213.497551104,9213.497551104,11411.977551103999,13206.757711104,8973.417551104,8973.417551104,8973.417551104,8973.417551104,9466.955516414719,9466.955516414719,9466.955516414719,9466.955516414719,9466.955516414719,9466.955516414719,11905.515516414718,13700.295676414718,9466.955516414719,9466.955516414719,9466.955516414719,9466.955516414719,9987.638069817529,9987.638069817529,9987.638069817529,9987.638069817529,9987.638069817529,9987.638069817529,12426.198069817528,14220.978229817529,9987.638069817529,9987.638069817529,9987.638069817529,9987.638069817529,29632.99443189131],"total":373318.1534577181,"valor_final_rescisao":25235.862968881775,"verbas_rescisorias":16262.445417777777,"ultimo_mes_folha":"2029-05"},{"matricula":42,"frente":"ADUTORA","nome":"WESLEY FELIPE DA SILVA","cargo":"LIDER DE FRENTE II","inicio":"2024-08-05","situacao":"Ativo","periodo_turno":"Diurno","salario":4132.25,"prev_deslig":"2026-12","custo_aprox":8425.395259199999,"monthly":[8425.395259199999,8425.395259199999,10189.4252592,10189.4252592,10491.520259199999,30639.0576592,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":78360.21895519999,"valor_final_rescisao":30639.0576592,"verbas_rescisorias":22213.6624,"ultimo_mes_folha":"2026-12"},{"matricula":243,"frente":"SETORIZAÇÃO","nome":"WILLIAN VERAS FERREIRA","cargo":"ASSISTENTE DE SANEAMENTO","inicio":"2025-07-17","situacao":"Ativo","periodo_turno":"Diurno","salario":2801.99,"prev_deslig":"2029-05","custo_aprox":5829.111299007999,"monthly":[5829.111299007999,5829.111299007999,6187.951299007999,6187.951299007999,7230.106299007999,8261.238619008,5829.111299007999,5829.111299007999,5829.111299007999,5829.111299007999,6149.712420453438,6149.712420453438,6149.712420453438,6149.712420453438,6149.712420453438,6149.712420453438,7550.707420453438,8581.839740453437,6149.712420453438,6149.712420453438,6149.712420453438,6149.712420453438,6487.946603578378,6487.946603578378,6487.946603578378,6487.946603578378,6487.946603578378,6487.946603578378,7888.941603578378,8920.073923578377,6487.946603578378,6487.946603578378,6487.946603578378,6487.946603578378,20464.552263508715],"total":242624.62050197038,"valor_final_rescisao":17427.892339007998,"verbas_rescisorias":11598.78104,"ultimo_mes_folha":"2029-05"},{"matricula":264,"frente":"CANTEIRO","nome":"YASMIN VITORIA PEREIRA CAMARGO","cargo":"APRENDIZ","inicio":"2026-02-10","situacao":"Ativo","periodo_turno":"Diurno","salario":884.18,"prev_deslig":"2027-02","custo_aprox":1344.95,"monthly":[1344.95,1344.95,1344.95,1344.95,1750.1991666666668,2048.4625533333333,1344.95,1344.95,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":11868.36172,"valor_final_rescisao":1344.95,"verbas_rescisorias":0,"ultimo_mes_folha":"2027-02"}]};
+const MONTHS = PAYLOAD.months;
+const MONTH_LABELS = PAYLOAD.monthLabels;
+const FRENTE_COLORS = PAYLOAD.frenteColors;
+const EMPLOYEES = PAYLOAD.employees;
+const FRENTES = Object.keys(FRENTE_COLORS);
+
+const BRL = new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL', maximumFractionDigits:0});
+const BRLc = new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL', maximumFractionDigits:0});
+const BRLplain = new Intl.NumberFormat('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+const PCT = new Intl.NumberFormat('pt-BR', {style:'percent', maximumFractionDigits:1});
+const NUM = new Intl.NumberFormat('pt-BR');
+function parseBRLInput(str){
+  let s = String(str||'').replace(/[^\d,.-]/g,'');
+  if(s.includes(',') && s.includes('.')){ s = s.replace(/\./g,'').replace(',', '.'); }
+  else if(s.includes(',')){ s = s.replace(',', '.'); }
+  return parseFloat(s);
+}
+
+function monthIndex(ym){ return MONTHS.indexOf(ym); }
+function yearOf(ym){ return parseInt(ym.split('-')[0],10); }
+const YEARS = [...new Set(MONTHS.map(yearOf))];
+
+/* ==================== STATE ==================== */
+const state = {
+  frentes: new Set(FRENTES),
+  rangeStart: 0,
+  rangeEnd: MONTHS.length - 1,
+  granularity: 'mes',
+  empSort: {key:'horizonte', dir:'desc'},
+  empSearch: '',
+  empFiltroFamilia: '',
+  empFiltroCargo: '',
+  matrixFrentes: new Set(FRENTES),
+  matrixColabs: new Set(EMPLOYEES.map(e=>e.matricula)),
+  matColabSearch: '',
+  overrides: {} /* matricula -> {frente?, deslig?} — deslig: 'YYYY-MM' | null; undefined = not edited */
+};
+
+/* ==================== SIMULATION: editable desligamento / família ====================
+   Dissídio de maio (5,5%, acumulado) é aplicado sobre o custo aprox. do colaborador
+   mês a mês — a mesma regra da planilha original. A rescisão do mês de saída é
+   ESTIMADA proporcionalmente ao tempo de casa (a partir do valor de verbas
+   rescisórias já calculado na planilha para a data original de cada pessoa),
+   já que o cálculo completo de CLT (aviso, 13º, férias, FGTS, multa) depende de
+   dados que não estão nesta base. Colaboradores não editados mantêm os valores
+   exatos da planilha. */
+const DISSIDIO_MULT = (()=>{
+  let mult = 1;
+  return MONTHS.map((m,i)=>{
+    if(i>0 && m.split('-')[1]==='05') mult *= 1.055;
+    return mult;
+  });
+})();
+function monthsBetween(dateStr, ymStr){
+  if(!dateStr || !ymStr) return 0;
+  const [yA,mA] = dateStr.split('-').map(Number);
+  const [yB,mB] = ymStr.split('-').map(Number);
+  return Math.max((yB-yA)*12 + (mB-mA), 0);
+}
+
+/* ---- 13º salário: provisão em duas parcelas (novembro e dezembro) ----
+   1ª parcela (novembro) = 50% do avos do 13º bruto (salário base × avos/12), sem encargos
+   (prática comum: o adiantamento de novembro não recebe INSS patronal isolado).
+   2ª parcela (dezembro) = os outros 50% do bruto + encargos sobre o 13º bruto INTEIRO
+   (INSS Patronal 20% + RAT 3% + Terceiros 5,8% = 28,8%, mesma alíquota da metodologia do
+   "Real", + FGTS 8% = 36,8% no total), já que é quando o cálculo fecha.
+   Avos = meses trabalhados no ano-calendário (jan-dez), 12/12 se admitido em ano anterior.
+   Não aplica no mês de desligamento: a rescisão (verbas_rescisorias) já estima o 13º
+   proporcional indenizado dentro do valor de saída. */
+const ENCARGO_13_RATE = 0.368;
+function monthsWorkedInCalendarYear(inicioStr, year){
+  if(!inicioStr) return 12;
+  const yA = parseInt(inicioStr.split('-')[0], 10);
+  const mA = parseInt(inicioStr.split('-')[1], 10);
+  if(yA > year) return 0;
+  if(yA < year) return 12;
+  return Math.max(0, Math.min(12, 13 - mA));
+}
+function apply13Salario(arr, emp, exitIdx){
+  const out = arr.slice();
+  MONTHS.forEach((ym, i)=>{
+    const [yStr, mStr] = ym.split('-');
+    if(mStr!=='11' && mStr!=='12') return;
+    if(i === exitIdx) return;
+    if(!(out[i] > 0)) return;
+    const avos = monthsWorkedInCalendarYear(emp.inicio, parseInt(yStr,10));
+    const gross13 = (emp.salario||0) * avos/12;
+    if(mStr==='11'){
+      out[i] += 0.5*gross13;
+    } else {
+      out[i] += 0.5*gross13 + gross13*ENCARGO_13_RATE;
+    }
+  });
+  return out;
+}
+
+/* ---- Férias vencidas: correção pontual a partir do relatório "Relação de Férias"
+   (CONSORCIO EFICIENCIA PRAIA GRANDE, extraído em 03/09/2026). Lista fixa de matrículas
+   com período aquisitivo vencido (situação "Aberto") e o saldo de dias em aberto —
+   não é recalculada a partir de nenhuma outra fonte deste dashboard.
+   Duas tratativas, por instrução do Fernando (28/09/2026):
+   - Quem CONTINUA ativo além de dezembro/2026: "férias gozadas" — o salário do mês já é
+     pago normalmente (custo_aprox), então o único custo INCREMENTAL é o terço
+     constitucional sobre os dias de saldo, com incidência de encargos (28,8% INSS
+     patronal/RAT/Terceiros + 8% FGTS = 36,8%, mesma alíquota do 13º) — lançado em
+     dezembro/2026.
+   - Quem for desligado até dezembro/2026 (inclusive): "férias indenizadas" — pagas em
+     dinheiro no acerto rescisório, então o valor CHEIO (saldo + 1/3) é incremental; por
+     serem verba indenizatória, não têm incidência de INSS patronal, só FGTS (8%) — lançado
+     no mês de desligamento (que, para todos os casos hoje na base, cai em dezembro/2026).
+   Cinco matrículas ficam de fora por instrução explícita (situação particular de cada
+   uma, fora do escopo desta correção): 5 (TAINA VIEIRA LIMA SANTOS), 39 (MIGUEL MAXIMO
+   DIAS JUNIOR), 212 (IZAQUE RAMOS BATISTA), 242 (JULIO CESAR LIMA DE CARVALHO), 243
+   (WILLIAN VERAS FERREIRA). */
+const FGTS_RATE = 0.08;
+const FERIAS_VENCIDAS_SALDO = {
+  86:22, 100:30, 110:22, 116:22, 164:22, 167:30, 174:30, 189:22,
+  201:30, 9:30, 29:30, 241:30, 36:30, 42:30, 50:30, 58:30, 60:30, 73:27.5
+};
+const FERIAS_VENCIDAS_EXCLUIDAS = new Set([5, 39, 212, 242, 243]);
+/* Desativado a pedido de Fernando em 29/09/2026: "desconsiderar o custo de férias, será
+   enviado posteriormente" — dados de férias vencidas serão reenviados/revisados depois.
+   A função e os dados acima ficam guardados (não apagados) pra reativar rápido quando a
+   base atualizada chegar; só o efeito na projeção é suspenso por este interruptor. */
+const FERIAS_VENCIDAS_ATIVO = false;
+function applyFeriasVencidas(arr, emp, exitIdx){
+  if(!FERIAS_VENCIDAS_ATIVO) return arr;
+  const saldo = FERIAS_VENCIDAS_SALDO[emp.matricula];
+  if(saldo == null || FERIAS_VENCIDAS_EXCLUIDAS.has(emp.matricula)) return arr;
+  const decIdx = MONTHS.indexOf('2026-12');
+  if(decIdx < 0) return arr;
+  const willExitByDec = exitIdx>=0 && exitIdx<=decIdx;
+  const targetIdx = willExitByDec ? exitIdx : decIdx;
+  if(!(arr[targetIdx] > 0)) return arr;
+  const out = arr.slice();
+  const diaria = (emp.salario||0)/30;
+  if(willExitByDec){
+    const base = diaria*saldo;
+    out[targetIdx] += (base + base/3) * (1+FGTS_RATE);
+  } else {
+    const terco = (diaria*saldo)/3;
+    out[targetIdx] += terco * (1+ENCARGO_13_RATE);
+  }
+  return out;
+}
+
+/* ---- Horas extras reais (Pontomais, 16/08–15/09/2026) projetadas em setembro e
+   outubro/2026 — a pedido de Fernando (29/09/2026): "considerar as seguintes horas
+   extras para inserir na previsão de custo de outubro e espelhar o mesmo custo para
+   novembro" — e, corrigido no mesmo dia: "a previsão precisa ser inserido no mês da
+   competência, ou seja, essa previsão precisa ser inserida em setembro e outubro"
+   (o período do relatório, 16/08–15/09, cai na competência de setembro, não outubro).
+   Fonte: relatório "Resumo da jornada" do Pontomais (H.E. 1 = 60%, H.E. 2 = 100%; H.E. 3
+   e H.E. 4 vieram zeradas pra todo mundo nesse período).
+   Metodologia: valor/hora = salário/220 (confere com a alíquota observada nos eventos
+   reais da folha de agosto/2026 — 0266 "Horas Extras c/60%" e 0259 "c/100%" — para quem
+   não recebe nenhum adicional variável habitual, que desvia essa conta). Reflexo de DSR
+   sobre hora extra estimado pela proporção observada na mesma folha (DSR reflexo / HE =
+   23,18% em agosto/2026) — não recalculado dia a dia porque o Pontomais não informa o
+   calendário de domingos/feriados do período. Encargos patronais + FGTS de 36,8% sobre
+   o total (mesma alíquota do 13º e das férias), por ser verba habitual com incidência
+   normal de INSS patronal/RAT/Terceiros + FGTS.
+   Valor fixo por colaborador, somado INTEGRALMENTE em setembro E em outubro — mesmo
+   valor nos dois meses, por instrução explícita de Fernando (não é rateio nem
+   proporção; é um "espelhamento" do mesmo custo real observado no período). */
+const HORAS_EXTRAS_SET_OUT = {
+  36:5513.49, 73:2411.82, 42:1764.03, 5:1751.86, 269:1426.68, 29:1410.36,
+  110:1285.64, 279:1239.37, 242:1184.45, 50:1172.62, 116:1158.95, 212:1023.12,
+  281:1021.31, 272:898.20, 277:702.24, 139:488.19, 243:358.84, 60:313.63,
+  189:303.33, 39:295.38, 164:240.08, 86:137.32, 9:127.85, 174:109.31,
+  58:25.40, 100:16.90, 167:6.58
+};
+function applyHorasExtrasSetOut(arr, emp, exitIdx){
+  const valor = HORAS_EXTRAS_SET_OUT[emp.matricula];
+  if(!valor) return arr;
+  const setIdx = MONTHS.indexOf('2026-09');
+  const outIdx = MONTHS.indexOf('2026-10');
+  if(setIdx<0 || outIdx<0) return arr;
+  const out = arr.slice();
+  if((exitIdx<0 || exitIdx>=setIdx) && out[setIdx] > 0) out[setIdx] += valor;
+  if((exitIdx<0 || exitIdx>=outIdx) && out[outIdx] > 0) out[outIdx] += valor;
+  return out;
+}
+
+function computeProjectedMonthly(emp, deslig){
+  const n = MONTHS.length;
+  const arr = new Array(n).fill(0);
+  const exitIdx = deslig ? monthIndex(deslig) : -1;
+  const lastActive = exitIdx>=0 ? exitIdx : n-1;
+  for(let i=0; i<=lastActive && i<n; i++){
+    arr[i] = emp.custo_aprox * DISSIDIO_MULT[i];
+  }
+  if(exitIdx>=0 && exitIdx<n){
+    const origTenure = Math.max(monthsBetween(emp.inicio, emp.prev_deslig), 1);
+    const rate = (emp.verbas_rescisorias||0) / origTenure;
+    const newTenure = monthsBetween(emp.inicio, deslig);
+    arr[exitIdx] = emp.custo_aprox*DISSIDIO_MULT[exitIdx] + rate*newTenure;
+  }
+  return applyHorasExtrasSetOut(applyFeriasVencidas(apply13Salario(arr, emp, exitIdx), emp, exitIdx), emp, exitIdx);
+}
+function computeEffective(emp){
+  const ov = state.overrides[emp.matricula];
+  if(!ov) return emp;
+  let out = emp;
+  let simulated = false;
+  if(ov.frente && ov.frente !== emp.frente){
+    out = Object.assign({}, out, {frente: ov.frente});
+    simulated = true;
+  }
+  if(ov.deslig !== undefined){
+    const monthly = computeProjectedMonthly(emp, ov.deslig);
+    const lastIdx = ov.deslig ? monthIndex(ov.deslig) : -1;
+    out = Object.assign({}, out, {
+      prev_deslig: ov.deslig, monthly,
+      valor_final_rescisao: lastIdx>=0 ? monthly[lastIdx] : 0
+    });
+    simulated = true;
+  }
+  if(ov.realizado){
+    out = Object.assign({}, out, {realizado: ov.realizado});
+  }
+  if(simulated) out = Object.assign({}, out, {_edited:true});
+  return out;
+}
+function effectiveEmployees(){
+  return EMPLOYEES.map(computeEffective);
+}
+function effFrenteCounts(){
+  const counts = {};
+  FRENTES.forEach(fr=>counts[fr]=0);
+  effectiveEmployees().forEach(e=>{ counts[e.frente] = (counts[e.frente]||0)+1; });
+  return counts;
+}
+
+
+/* ==================== FILTER UI ==================== */
+function buildFrenteChecks(){
+  const wrap = document.getElementById('frenteChecks');
+  wrap.innerHTML = '';
+  const counts = effFrenteCounts();
+  FRENTES.forEach(fr=>{
+    const row = document.createElement('label');
+    row.className = 'check-row';
+    row.innerHTML = `<input type="checkbox" data-frente="${fr}" ${state.frentes.has(fr)?'checked':''}>
+      <span class="dot" style="background:${FRENTE_COLORS[fr]}"></span>
+      <span>${titleCase(fr)}</span>
+      <span class="cnt">${counts[fr]}</span>`;
+    wrap.appendChild(row);
+  });
+  wrap.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      const fr = cb.getAttribute('data-frente');
+      if(cb.checked) state.frentes.add(fr); else state.frentes.delete(fr);
+      onFilterChange();
+    });
+  });
+}
+function titleCase(s){
+  return s.toLowerCase().split(' ').map(w=> w.length ? w[0].toUpperCase()+w.slice(1) : w).join(' ');
+}
+
+function buildEmpFiltroSelects(){
+  const famSel = document.getElementById('empFiltroFamilia');
+  const cargoSel = document.getElementById('empFiltroCargo');
+  famSel.innerHTML = '<option value="">Todas as famílias</option>' +
+    FRENTES.map(fr=>`<option value="${fr}">${titleCase(fr)}</option>`).join('');
+  const cargos = [...new Set(EMPLOYEES.map(e=>e.cargo))].sort((a,b)=> a.localeCompare(b,'pt-BR'));
+  cargoSel.innerHTML = '<option value="">Todos os cargos</option>' +
+    cargos.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+function buildMatFrenteChecks(){
+  const wrap = document.getElementById('matFrenteChecks');
+  wrap.innerHTML = '';
+  const counts = effFrenteCounts();
+  FRENTES.forEach(fr=>{
+    const count = counts[fr];
+    const row = document.createElement('label');
+    row.className = 'check-row';
+    row.innerHTML = `<input type="checkbox" data-frente="${fr}" ${state.matrixFrentes.has(fr)?'checked':''}>
+      <span class="dot" style="background:${FRENTE_COLORS[fr]}"></span>
+      <span>${titleCase(fr)}</span>
+      <span class="cnt">${count}</span>`;
+    wrap.appendChild(row);
+  });
+  wrap.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      const fr = cb.getAttribute('data-frente');
+      if(cb.checked) state.matrixFrentes.add(fr); else state.matrixFrentes.delete(fr);
+      updateMatFrenteBtn();
+      renderMatrix();
+    });
+  });
+  updateMatFrenteBtn();
+}
+function updateMatFrenteBtn(){
+  const n = state.matrixFrentes.size, total = FRENTES.length;
+  document.getElementById('matFrenteBtnLabel').textContent = n===total ? 'Todas' : (n===0 ? 'Nenhuma' : `${n} selec.`);
+  document.getElementById('matFrenteCount').textContent = n;
+}
+
+function buildMatColabChecks(){
+  const wrap = document.getElementById('matColabChecks');
+  const q = state.matColabSearch;
+  wrap.innerHTML = '';
+  const list = effectiveEmployees().filter(e=> !q || e.nome.toLowerCase().includes(q) || e.cargo.toLowerCase().includes(q))
+    .slice().sort((a,b)=> a.nome.localeCompare(b.nome));
+  if(list.length===0){
+    wrap.innerHTML = `<div class="empty-state" style="padding:14px;">Nenhum colaborador encontrado.</div>`;
+    return;
+  }
+  list.forEach(e=>{
+    const row = document.createElement('label');
+    row.className = 'check-row';
+    row.innerHTML = `<input type="checkbox" data-matricula="${e.matricula}" ${state.matrixColabs.has(e.matricula)?'checked':''}>
+      <span class="dot" style="background:${FRENTE_COLORS[e.frente]}"></span>
+      <span>${e.nome}</span>`;
+    wrap.appendChild(row);
+  });
+  wrap.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      const m = parseInt(cb.getAttribute('data-matricula'),10);
+      if(cb.checked) state.matrixColabs.add(m); else state.matrixColabs.delete(m);
+      updateMatColabBtn();
+      renderMatrix();
+    });
+  });
+}
+function updateMatColabBtn(){
+  const n = state.matrixColabs.size, total = EMPLOYEES.length;
+  document.getElementById('matColabBtnLabel').textContent = n===total ? 'Todos' : (n===0 ? 'Nenhum' : `${n} selec.`);
+  document.getElementById('matColabCount').textContent = n;
+}
+
+function buildRangeSelects(){
+  const fromSel = document.getElementById('fromSelect');
+  const toSel = document.getElementById('toSelect');
+  fromSel.innerHTML=''; toSel.innerHTML='';
+  if(state.granularity==='mes'){
+    MONTHS.forEach((m,i)=>{
+      fromSel.appendChild(new Option(MONTH_LABELS[i], i));
+      toSel.appendChild(new Option(MONTH_LABELS[i], i));
+    });
+    fromSel.value = state.rangeStart;
+    toSel.value = state.rangeEnd;
+  } else {
+    YEARS.forEach(y=>{
+      fromSel.appendChild(new Option(y, y));
+      toSel.appendChild(new Option(y, y));
+    });
+    fromSel.value = yearOf(MONTHS[state.rangeStart]);
+    toSel.value = yearOf(MONTHS[state.rangeEnd]);
+  }
+}
+
+function onFromToChange(){
+  if(state.granularity==='mes'){
+    let a = parseInt(document.getElementById('fromSelect').value,10);
+    let b = parseInt(document.getElementById('toSelect').value,10);
+    if(a>b){ [a,b]=[b,a]; }
+    state.rangeStart=a; state.rangeEnd=b;
+  } else {
+    let ya = parseInt(document.getElementById('fromSelect').value,10);
+    let yb = parseInt(document.getElementById('toSelect').value,10);
+    if(ya>yb){ [ya,yb]=[yb,ya]; }
+    const idxA = MONTHS.findIndex(m=>yearOf(m)===ya);
+    let idxB = -1;
+    MONTHS.forEach((m,i)=>{ if(yearOf(m)===yb) idxB = i; });
+    state.rangeStart = idxA; state.rangeEnd = idxB;
+  }
+  buildRangeSelects();
+  onFilterChange();
+}
+
+document.getElementById('granSeg').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-gran]');
+  if(!btn) return;
+  state.granularity = btn.getAttribute('data-gran');
+  document.querySelectorAll('#granSeg button').forEach(b=>b.classList.toggle('active', b===btn));
+  buildRangeSelects();
+  onFilterChange();
+});
+document.getElementById('fromSelect').addEventListener('change', onFromToChange);
+document.getElementById('toSelect').addEventListener('change', onFromToChange);
+
+const frenteBtn = document.getElementById('frenteBtn');
+const frentePopover = document.getElementById('frentePopover');
+frenteBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const open = frentePopover.classList.toggle('open');
+  frenteBtn.setAttribute('aria-expanded', open);
+});
+document.addEventListener('click', (e)=>{
+  if(!document.getElementById('frenteFilterWrap').contains(e.target)){
+    frentePopover.classList.remove('open');
+    frenteBtn.setAttribute('aria-expanded','false');
+  }
+});
+document.getElementById('frenteAll').addEventListener('click', ()=>{
+  state.frentes = new Set(FRENTES);
+  frentePopover.querySelectorAll('input').forEach(cb=>cb.checked=true);
+  onFilterChange();
+});
+document.getElementById('frenteNone').addEventListener('click', ()=>{
+  state.frentes = new Set();
+  frentePopover.querySelectorAll('input').forEach(cb=>cb.checked=false);
+  onFilterChange();
+});
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  state.frentes = new Set(FRENTES);
+  state.rangeStart = 0; state.rangeEnd = MONTHS.length-1;
+  state.granularity='mes';
+  document.querySelectorAll('#granSeg button').forEach(b=>b.classList.toggle('active', b.getAttribute('data-gran')==='mes'));
+  document.getElementById('empSearch').value='';
+  state.empSearch='';
+  document.getElementById('empFiltroFamilia').value='';
+  state.empFiltroFamilia='';
+  document.getElementById('empFiltroCargo').value='';
+  state.empFiltroCargo='';
+  state.matrixFrentes = new Set(FRENTES);
+  state.matrixColabs = new Set(EMPLOYEES.map(e=>e.matricula));
+  state.matColabSearch='';
+  document.getElementById('matColabSearch').value='';
+  buildFrenteChecks();
+  buildRangeSelects();
+  buildMatFrenteChecks();
+  buildMatColabChecks();
+  onFilterChange();
+});
+document.getElementById('empSearch').addEventListener('input', (e)=>{
+  state.empSearch = e.target.value.trim().toLowerCase();
+  renderEmployeeTable();
+});
+document.getElementById('empFiltroFamilia').addEventListener('change', (e)=>{
+  state.empFiltroFamilia = e.target.value;
+  renderEmployeeTable();
+});
+document.getElementById('empFiltroCargo').addEventListener('change', (e)=>{
+  state.empFiltroCargo = e.target.value;
+  renderEmployeeTable();
+});
+
+/* ---- matrix-local filters: família ---- */
+const matFrenteBtn = document.getElementById('matFrenteBtn');
+const matFrentePopover = document.getElementById('matFrentePopover');
+matFrenteBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const open = matFrentePopover.classList.toggle('open');
+  matFrenteBtn.setAttribute('aria-expanded', open);
+});
+document.getElementById('matFrenteAll').addEventListener('click', ()=>{
+  state.matrixFrentes = new Set(FRENTES);
+  buildMatFrenteChecks();
+  renderMatrix();
+});
+document.getElementById('matFrenteNone').addEventListener('click', ()=>{
+  state.matrixFrentes = new Set();
+  buildMatFrenteChecks();
+  renderMatrix();
+});
+
+/* ---- matrix-local filters: colaborador ---- */
+const matColabBtn = document.getElementById('matColabBtn');
+const matColabPopover = document.getElementById('matColabPopover');
+matColabBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const open = matColabPopover.classList.toggle('open');
+  matColabBtn.setAttribute('aria-expanded', open);
+});
+document.getElementById('matColabAll').addEventListener('click', ()=>{
+  state.matrixColabs = new Set(EMPLOYEES.map(e=>e.matricula));
+  buildMatColabChecks();
+  updateMatColabBtn();
+  renderMatrix();
+});
+document.getElementById('matColabNone').addEventListener('click', ()=>{
+  state.matrixColabs = new Set();
+  buildMatColabChecks();
+  updateMatColabBtn();
+  renderMatrix();
+});
+document.getElementById('matColabSearch').addEventListener('input', (e)=>{
+  state.matColabSearch = e.target.value.trim().toLowerCase();
+  buildMatColabChecks();
+});
+document.addEventListener('click', (e)=>{
+  if(!document.getElementById('matFrenteWrap').contains(e.target)){
+    matFrentePopover.classList.remove('open');
+    matFrenteBtn.setAttribute('aria-expanded','false');
+  }
+  if(!document.getElementById('matColabWrap').contains(e.target)){
+    matColabPopover.classList.remove('open');
+    matColabBtn.setAttribute('aria-expanded','false');
+  }
+});
+
+/* ==================== DERIVED DATA ==================== */
+function filteredEmployees(){
+  return effectiveEmployees().filter(e=>state.frentes.has(e.frente));
+}
+function matrixFilteredEmployees(){
+  return filteredEmployees().filter(e=> state.matrixFrentes.has(e.frente) && state.matrixColabs.has(e.matricula));
+}
+function rangeSum(emp, from, to){
+  let s=0;
+  for(let i=from;i<=to;i++) s += emp.monthly[i]||0;
+  return s;
+}
+function computeKPIs(){
+  const emps = filteredEmployees();
+  const {rangeStart:a, rangeEnd:b} = state;
+  const numMonths = b-a+1;
+  let custoTotal=0, custoPrimeiro=0, custoUltimo=0, pessoas=0, desligamentos=0, custoRescisao=0;
+  emps.forEach(e=>{
+    const sum = rangeSum(e,a,b);
+    custoTotal += sum;
+    custoPrimeiro += (e.monthly[a]||0);
+    custoUltimo += (e.monthly[b]||0);
+    if(sum>0) pessoas++;
+    if(e.prev_deslig){
+      const idx = monthIndex(e.prev_deslig+'');
+      if(idx>=a && idx<=b){ desligamentos++; custoRescisao += (e.valor_final_rescisao||0); }
+    }
+  });
+  let dissidios = 0;
+  for(let i=a;i<=b;i++){
+    const [y,m] = MONTHS[i].split('-');
+    if(m==='05' && i>0) dissidios++; // maio dentro do período, exceto o mês-base inicial do contrato
+  }
+  const reajuste = Math.pow(1.055, dissidios) - 1;
+  return {
+    custoTotal, custoMedioMensal: custoTotal/Math.max(numMonths,1),
+    custoPrimeiro, custoUltimo, pessoas, desligamentos, custoRescisao, reajuste, dissidios
+  };
+}
+
+/* ==================== RENDER: KPIs ==================== */
+function kpiCard(label, value, sub, cls){
+  return `<div class="kpi-card ${cls||''}">
+    <div class="kpi-label">${label}</div>
+    <div class="kpi-value">${value}</div>
+    <div class="kpi-sub">${sub}</div>
+  </div>`;
+}
+function renderKPIs(){
+  const k = computeKPIs();
+  const fromLbl = MONTH_LABELS[state.rangeStart], toLbl = MONTH_LABELS[state.rangeEnd];
+  document.getElementById('kpiGridFinance').innerHTML = [
+    kpiCard('Custo total do período', BRL.format(k.custoTotal), `Soma de ${state.rangeEnd-state.rangeStart+1} meses projetados`),
+    kpiCard('Custo médio mensal', BRL.format(k.custoMedioMensal), 'Média simples do período'),
+    kpiCard('Custo do primeiro mês', BRL.format(k.custoPrimeiro), `Competência ${fromLbl}`),
+    kpiCard('Custo do último mês', BRL.format(k.custoUltimo), `Competência ${toLbl}`),
+  ].join('');
+  document.getElementById('kpiGridWorkforce').innerHTML = [
+    kpiCard('Pessoas no histograma', NUM.format(k.pessoas), 'Com custo projetado no período', 'workforce'),
+    kpiCard('Desligamentos previstos', NUM.format(k.desligamentos), 'Com data de desligamento no período', 'workforce'),
+    kpiCard('Custo rescisório previsto', BRL.format(k.custoRescisao), 'Total das rescisões programadas no período', 'workforce'),
+    kpiCard('Reajuste acumulado', PCT.format(k.reajuste), k.dissidios ? `${k.dissidios} dissídio(s) de maio de 5,5% no período` : 'Nenhum dissídio de maio no período', 'workforce'),
+  ].join('');
+}
+
+/* ==================== RENDER: charts (hand-built SVG, no external deps) ==================== */
+const SVGNS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, attrs){
+  const el = document.createElementNS(SVGNS, tag);
+  for(const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+function niceCeil(v){
+  if(v<=0) return 1;
+  const exp = Math.floor(Math.log10(v));
+  const base = Math.pow(10, exp);
+  const f = v/base;
+  let nf;
+  if(f<=1) nf=1; else if(f<=2) nf=2; else if(f<=5) nf=5; else nf=10;
+  return nf*base;
+}
+function compactNum(v){
+  if(Math.abs(v)>=1000000) return (v/1000000).toFixed(1).replace('.',',')+'M';
+  if(Math.abs(v)>=1000) return (v/1000).toFixed(0)+'k';
+  return String(Math.round(v));
+}
+function chartTooltip(container){
+  let tip = container.querySelector(':scope > .chart-tooltip');
+  if(!tip){
+    tip = document.createElement('div');
+    tip.className = 'chart-tooltip';
+    container.appendChild(tip);
+  }
+  return tip;
+}
+function showTip(container, evt, html){
+  const tip = chartTooltip(container);
+  tip.innerHTML = html;
+  tip.style.display = 'block';
+  const rect = container.getBoundingClientRect();
+  let x = evt.clientX - rect.left + 14;
+  let y = evt.clientY - rect.top - 12;
+  if(x + 140 > rect.width) x = evt.clientX - rect.left - 150;
+  tip.style.left = x + 'px';
+  tip.style.top = Math.max(0,y) + 'px';
+}
+function hideTip(container){
+  const tip = container.querySelector(':scope > .chart-tooltip');
+  if(tip) tip.style.display = 'none';
+}
+
+/* vertical bar chart: single series, thin rounded bars, hairline gridlines, hover tooltip */
+function boxSize(container, fallbackW, fallbackH){
+  const w = container.clientWidth || fallbackW;
+  const h = container.clientHeight || fallbackH;
+  return {w, h};
+}
+
+function renderVBarChart(container, {labels, values, color, fmt, yMin, yMax}){
+  container.innerHTML = '';
+  const {w:W, h:H} = boxSize(container, 700, 210);
+  const padL = 54, padR = 10, padT = 14, padB = 26;
+  const plotW = W-padL-padR, plotH = H-padT-padB;
+  const n = Math.max(values.length,1);
+  const dMin = yMin!=null ? yMin : 0;
+  const dMax = yMax!=null ? yMax : niceCeil(Math.max(...values, 0));
+  const dSpan = Math.max(dMax-dMin, 1e-9);
+  const slot = plotW/n;
+  const barW = Math.max(2, Math.min(slot-3, 30));
+
+  const svg = svgEl('svg', {viewBox:`0 0 ${W} ${H}`, width:'100%', height:'100%', class:'chart-svg'});
+  for(let s=0;s<=4;s++){
+    const v = dMin + dSpan*s/4;
+    const y = padT + plotH - ((v-dMin)/dSpan)*plotH;
+    svg.appendChild(svgEl('line', {x1:padL, x2:W-padR, y1:y.toFixed(1), y2:y.toFixed(1), stroke:'rgba(11,11,11,0.07)', 'stroke-width':1}));
+    const t = svgEl('text', {x:padL-8, y:(y+4).toFixed(1), 'text-anchor':'end', 'font-size':12, fill:'#6b7280', 'font-family':'IBM Plex Mono, monospace'});
+    t.textContent = compactNum(v);
+    svg.appendChild(t);
+  }
+  const skip = Math.max(1, Math.ceil(n/12));
+  values.forEach((v,i)=>{
+    const x = padL + i*slot + (slot-barW)/2;
+    const frac = Math.max(0, Math.min(1, (v-dMin)/dSpan));
+    const h = frac*plotH;
+    const y = padT + plotH - h;
+    const rect = svgEl('rect', {x:x.toFixed(1), y:y.toFixed(1), width:barW.toFixed(1), height:Math.max(h,0).toFixed(1), rx:Math.min(4,barW/2).toFixed(1), fill:color, class:'bar-mark'});
+    rect.addEventListener('mousemove', (e)=> showTip(container, e, `<b>${labels[i]}</b><br>${fmt(v)}`));
+    rect.addEventListener('mouseleave', ()=> hideTip(container));
+    svg.appendChild(rect);
+    if(i%skip===0 || n<=12){
+      const lbl = svgEl('text', {x:(x+barW/2).toFixed(1), y:H-7, 'text-anchor':'middle', 'font-size':11.5, fill:'#6b7280', 'font-family':'IBM Plex Sans, sans-serif'});
+      lbl.textContent = labels[i];
+      svg.appendChild(lbl);
+    }
+  });
+  container.appendChild(svg);
+}
+
+/* area+line chart: single series, 2px line, translucent fill, hover markers */
+function renderAreaChart(container, {labels, values, color, fillColor, fmt, yMin, yMax}){
+  container.innerHTML = '';
+  const {w:W, h:H} = boxSize(container, 700, 96);
+  const padL = 54, padR = 10, padT = 12, padB = 10;
+  const plotW = W-padL-padR, plotH = H-padT-padB;
+  const n = Math.max(values.length,1);
+  const dMin = yMin!=null ? yMin : 0;
+  const dMax = yMax!=null ? yMax : niceCeil(Math.max(...values, 0));
+  const dSpan = Math.max(dMax-dMin, 1e-9);
+  const step = n>1 ? plotW/(n-1) : 0;
+  const pts = values.map((v,i)=>{
+    const x = padL + i*step;
+    const frac = Math.max(0, Math.min(1, (v-dMin)/dSpan));
+    const y = padT + plotH - frac*plotH;
+    return [x,y];
+  });
+  const svg = svgEl('svg', {viewBox:`0 0 ${W} ${H}`, width:'100%', height:'100%', class:'chart-svg'});
+  svg.appendChild(svgEl('line', {x1:padL, x2:W-padR, y1:padT+plotH, y2:padT+plotH, stroke:'rgba(11,11,11,0.07)', 'stroke-width':1}));
+  const areaD = 'M'+pts.map(p=>p.join(',')).join('L')+`L${pts[pts.length-1][0]},${padT+plotH}L${pts[0][0]},${padT+plotH}Z`;
+  svg.appendChild(svgEl('path', {d:areaD, fill:fillColor, stroke:'none'}));
+  const lineD = 'M'+pts.map(p=>p.join(',')).join('L');
+  svg.appendChild(svgEl('path', {d:lineD, fill:'none', stroke:color, 'stroke-width':2, 'stroke-linejoin':'round', 'stroke-linecap':'round'}));
+  pts.forEach((p,i)=>{
+    const hit = svgEl('circle', {cx:p[0].toFixed(1), cy:p[1].toFixed(1), r:9, fill:'transparent'});
+    hit.addEventListener('mousemove', (e)=> showTip(container, e, `<b>${labels[i]}</b><br>${fmt(values[i])}`));
+    hit.addEventListener('mouseleave', ()=> hideTip(container));
+    svg.appendChild(hit);
+  });
+  const last = pts[pts.length-1];
+  svg.appendChild(svgEl('circle', {cx:last[0].toFixed(1), cy:last[1].toFixed(1), r:3.5, fill:color}));
+  container.appendChild(svg);
+}
+
+/* horizontal bar chart: one bar per category, direct labels both sides, no legend needed */
+function renderHBarChart(container, rows, {fmt}){
+  container.innerHTML = '';
+  const {w:W, h:H} = boxSize(container, 460, 404);
+  const padL = 138, padR = 84, padT = 6, padB = 6;
+  const plotW = W-padL-padR, plotH = H-padT-padB;
+  const rowH = plotH/Math.max(rows.length,1);
+  const max = niceCeil(Math.max(...rows.map(r=>r.val), 0));
+  const svg = svgEl('svg', {viewBox:`0 0 ${W} ${H}`, width:'100%', height:'100%', class:'chart-svg'});
+  rows.forEach((r,i)=>{
+    const cy = padT + i*rowH + rowH/2;
+    const barH = Math.min(24, rowH*0.55);
+    const w = max>0 ? (r.val/max)*plotW : 0;
+    const lbl = svgEl('text', {x:padL-10, y:(cy+4.5).toFixed(1), 'text-anchor':'end', 'font-size':10.5, fill:'#2a2f3a', 'font-family':'IBM Plex Sans, sans-serif'});
+    lbl.textContent = r.label;
+    svg.appendChild(lbl);
+    const rect = svgEl('rect', {x:padL, y:(cy-barH/2).toFixed(1), width:Math.max(w,1).toFixed(1), height:barH.toFixed(1), rx:4, fill:r.color, class:'bar-mark'});
+    rect.addEventListener('mousemove', (e)=> showTip(container, e, `<b>${r.label}</b><br>${fmt(r.val)}`));
+    rect.addEventListener('mouseleave', ()=> hideTip(container));
+    svg.appendChild(rect);
+    const vlbl = svgEl('text', {x:(padL+w+8).toFixed(1), y:(cy+4.5).toFixed(1), 'text-anchor':'start', 'font-size':12, fill:'#5b6472', 'font-family':'IBM Plex Mono, monospace'});
+    vlbl.textContent = compactNum(r.val);
+    svg.appendChild(vlbl);
+  });
+  container.appendChild(svg);
+}
+
+function aggregateByGranularity(emps){
+  const {rangeStart:a, rangeEnd:b, granularity} = state;
+  if(granularity==='mes'){
+    const labels = MONTH_LABELS.slice(a,b+1);
+    const costs = [];
+    const heads = [];
+    for(let i=a;i<=b;i++){
+      let c=0, h=0;
+      emps.forEach(e=>{ const v=e.monthly[i]||0; c+=v; if(v>0) h++; });
+      costs.push(c); heads.push(h);
+    }
+    return {labels, costs, heads};
+  } else {
+    const yrs = [...new Set(MONTHS.slice(a,b+1).map(yearOf))];
+    const labels = yrs.map(String);
+    const costs = [];
+    const heads = [];
+    yrs.forEach(y=>{
+      let c=0, lastIdx=-1;
+      for(let i=a;i<=b;i++){
+        if(yearOf(MONTHS[i])===y){ lastIdx=i; emps.forEach(e=>{ c += e.monthly[i]||0; }); }
+      }
+      let h=0;
+      if(lastIdx>=0) emps.forEach(e=>{ if((e.monthly[lastIdx]||0)>0) h++; });
+      costs.push(c); heads.push(h);
+    });
+    return {labels, costs, heads};
+  }
+}
+
+function renderEvoCharts(){
+  const emps = filteredEmployees();
+  const {labels, costs, heads} = aggregateByGranularity(emps);
+  document.getElementById('evoNote').textContent = state.granularity==='mes' ? 'custo por mês' : 'custo por ano';
+
+  renderVBarChart(document.getElementById('evoChart'), {
+    labels, values: costs, color:'#2a78d6', fmt: BRL.format, yMin: 80000, yMax: 430000
+  });
+  renderAreaChart(document.getElementById('headcountChart'), {
+    labels, values: heads, color:'#4a3aa7', fillColor:'rgba(74,58,167,0.16)',
+    fmt: (v)=> `${v} pessoa${v===1?'':'s'}`, yMin: 10, yMax: 40
+  });
+}
+
+function renderFrenteChart(){
+  const {rangeStart:a, rangeEnd:b} = state;
+  const eff = effectiveEmployees();
+  const rows = FRENTES.map(fr=>{
+    const emps = eff.filter(e=>e.frente===fr);
+    const val = state.frentes.has(fr) ? emps.reduce((s,e)=>s+rangeSum(e,a,b),0) : 0;
+    return {label: titleCase(fr), val, color: state.frentes.has(fr) ? FRENTE_COLORS[fr] : 'rgba(11,11,11,0.12)'};
+  }).sort((x,y)=>y.val-x.val);
+
+  renderHBarChart(document.getElementById('frenteChart'), rows, {fmt: BRL.format});
+}
+
+/* ==================== RENDER: matrix table ==================== */
+function renderMatrix(){
+  const base = filteredEmployees();
+  const emps = matrixFilteredEmployees().slice().sort((x,y)=> x.frente.localeCompare(y.frente) || y.custo_aprox-x.custo_aprox);
+  const {rangeStart:a, rangeEnd:b} = state;
+  const table = document.getElementById('matrixTable');
+
+  const summary = document.getElementById('matrixSummary');
+  if(summary) summary.innerHTML = `<b>${emps.length}</b> de ${base.length} colaboradores no filtro atual`;
+
+  if(emps.length===0){
+    table.innerHTML = `<tbody><tr><td class="empty-state">Nenhum colaborador para os filtros selecionados.</td></tr></tbody>`;
+    return;
+  }
+  let max = 0;
+  emps.forEach(e=>{ for(let i=a;i<=b;i++) max = Math.max(max, e.monthly[i]||0); });
+
+  let thead = `<thead><tr>
+    <th class="sticky-col">Colaborador</th>
+    <th class="sticky-col2">Família</th>
+    <th>Prev. desligamento</th>`;
+  for(let i=a;i<=b;i++) thead += `<th>${MONTH_LABELS[i]}</th>`;
+  thead += `<th>Total período</th></tr></thead>`;
+
+  let tbody = '<tbody>';
+  const colTotals = new Array(b-a+1).fill(0);
+  const colTotalsReal = new Array(b-a+1).fill(0);
+  let grandTotal = 0;
+  let grandTotalReal = 0;
+  emps.forEach(e=>{
+    const sum = rangeSum(e,a,b);
+    grandTotal += sum;
+    const frenteOptions = FRENTES.map(fr=>`<option value="${fr}" ${fr===e.frente?'selected':''}>${titleCase(fr)}</option>`).join('');
+    const desligOptions = `<option value="" ${!e.prev_deslig?'selected':''}>Ativo (sem previsão)</option>` +
+      MONTHS.map((m,i)=>`<option value="${m}" ${m===e.prev_deslig?'selected':''}>${MONTH_LABELS[i]}</option>`).join('');
+    tbody += `<tr>
+      <td class="sticky-col"><div class="name-cell"><span class="nm">${e.nome}</span><span class="cg">${e.cargo}</span>${e._edited?'<span class="edited-tag">simulado</span>':''}</div></td>
+      <td class="sticky-col2">
+        <select class="edit-select frente-select" data-matricula="${e.matricula}" data-field="frente" style="border-color:${FRENTE_COLORS[e.frente]}; background:${hexAlpha(FRENTE_COLORS[e.frente],0.2)};">${frenteOptions}</select>
+      </td>
+      <td><select class="edit-select deslig-select" data-matricula="${e.matricula}" data-field="deslig">${desligOptions}</select></td>`;
+    for(let i=a;i<=b;i++){
+      const v = e.monthly[i]||0;
+      colTotals[i-a]+=v;
+      const alpha = max>0 ? Math.min(0.07 + 0.40*(v/max), 0.48) : 0.07;
+      const bg = v>0 ? `rgba(42,120,214,${alpha.toFixed(3)})` : 'transparent';
+      const ym = MONTHS[i];
+      const realVal = (e.realizado && e.realizado[ym]!=null) ? e.realizado[ym] : null;
+      const realDisplay = realVal!=null ? BRLplain.format(realVal) : '';
+      if(realVal!=null){ colTotalsReal[i-a] += realVal; grandTotalReal += realVal; }
+      tbody += `<td class="cell" style="background:${bg}">
+        <div class="cell-prev">${v>0 ? BRL.format(v) : '&middot;'}</div>
+        <div class="cell-real-wrap">
+          <span class="cell-real-label">Real</span>
+          <input type="text" inputmode="decimal" class="real-input${realVal!=null?' has-value':''}" data-matricula="${e.matricula}" data-ym="${ym}" value="${realDisplay}" placeholder="—">
+        </div>
+      </td>`;
+    }
+    tbody += `<td class="cell" style="font-weight:600">${BRL.format(sum)}</td></tr>`;
+  });
+  tbody += `<tr class="total-row"><td class="sticky-col">Total</td><td class="sticky-col2">${emps.length} colaboradores</td><td></td>`;
+  colTotals.forEach((v,idx)=>{
+    const realTotal = colTotalsReal[idx];
+    tbody += `<td class="cell">
+      <div class="cell-prev">${v>0 ? BRL.format(v) : '&middot;'}</div>
+      <div class="cell-real-wrap">
+        <span class="cell-real-label">Real</span>
+        <span class="total-real-value${realTotal>0?' has-value':''}">${realTotal>0 ? BRL.format(realTotal) : '&mdash;'}</span>
+      </div>
+    </td>`;
+  });
+  tbody += `<td class="cell">
+    <div class="cell-prev">${BRL.format(grandTotal)}</div>
+    <div class="cell-real-wrap">
+      <span class="cell-real-label">Real</span>
+      <span class="total-real-value${grandTotalReal>0?' has-value':''}">${grandTotalReal>0 ? BRL.format(grandTotalReal) : '&mdash;'}</span>
+    </div>
+  </td></tr>`;
+  tbody += '</tbody>';
+
+  table.innerHTML = thead + tbody;
+}
+function refreshAfterOverrideChange(){
+  saveOverridesLocal();
+  onFilterChange();
+  safe('frente-checks', buildFrenteChecks);
+  safe('mat-frente-checks', buildMatFrenteChecks);
+  safe('mat-colab-checks', buildMatColabChecks);
+}
+function wireMatrixEdits(){
+  const table = document.getElementById('matrixTable');
+  table.addEventListener('change', (e)=>{
+    const el = e.target;
+    if(el.matches && el.matches('.edit-select')){
+      const matricula = parseInt(el.getAttribute('data-matricula'),10);
+      const field = el.getAttribute('data-field');
+      if(!matricula || !field) return;
+      const ov = Object.assign({}, state.overrides[matricula]);
+      if(field==='frente'){
+        ov.frente = el.value;
+      } else if(field==='deslig'){
+        ov.deslig = el.value || null;
+      }
+      ov.updatedAt = new Date().toISOString();
+      state.overrides[matricula] = ov;
+      refreshAfterOverrideChange();
+      saveOverrideToDb(matricula, ov);
+      sendSetOverride(matricula, ov.frente, ov.deslig, ov.updatedAt);
+      return;
+    }
+    if(el.matches && el.matches('.real-input')){
+      const matricula = parseInt(el.getAttribute('data-matricula'),10);
+      const ym = el.getAttribute('data-ym');
+      if(!matricula || !ym) return;
+      const raw = el.value.trim();
+      const ov = Object.assign({}, state.overrides[matricula]);
+      const realizado = Object.assign({}, ov.realizado);
+      if(raw===''){
+        delete realizado[ym];
+        el.classList.remove('has-value');
+      } else {
+        const num = parseBRLInput(raw);
+        if(isNaN(num)){ el.value = ov.realizado && ov.realizado[ym]!=null ? BRLplain.format(ov.realizado[ym]) : ''; return; }
+        realizado[ym] = num;
+        el.value = BRLplain.format(num);
+        el.classList.add('has-value');
+      }
+      ov.realizado = realizado;
+      /* Correção de 30/09/2026: usa um "updatedAt" PRÓPRIO do Real (realizadoUpdatedAt),
+         nunca o ov.updatedAt compartilhado com família/desligamento. Ver comentário completo
+         em sendPatchRealizado — em resumo: editar o Real de alguém não pode "adiantar o
+         relógio" que decide se este computador aceita ou ignora a previsão de desligamento
+         vinda de outro computador. */
+      ov.realizadoUpdatedAt = new Date().toISOString();
+      state.overrides[matricula] = ov;
+      saveOverridesLocal();
+      saveOverrideToDb(matricula, ov);
+      /* Real usa sempre o caminho de mescla (patchRealizado), nunca sendSetOverride:
+         só este mês é enviado e o servidor mescla com os demais meses já salvos, em vez de
+         substituir a linha inteira. Ver comentário em sendSetOverride. */
+      sendPatchRealizado(matricula, {[ym]: raw==='' ? null : realizado[ym]}, ov.realizadoUpdatedAt);
+    }
+  });
+}
+
+/* ==================== PERSISTENCE: db capability (live, shared, org-internal) ==================== */
+let dbNS = null;
+function setSaveStatus(mode, label){
+  const el = document.getElementById('saveStatus');
+  if(!el) return;
+  el.hidden = false;
+  el.className = 'save-status ' + mode;
+  el.textContent = label;
+}
+/* set() do banco é um "replace" completo do documento — se duas gravações
+   concorrentes (ex.: a edição de família/desligamento de alguém e o carregamento
+   automático do Real daquele mesmo colaborador) usarem set() ao mesmo tempo, a que
+   chegar por último apaga os campos que a outra não conhecia (foi exatamente isso
+   que causava a previsão de desligamento "sumir" depois de alguns segundos).
+   update() já faz merge campo a campo (e mescla objetos aninhados, como
+   "realizado", mês a mês) — por isso toda gravação tenta update() primeiro e só
+   cai para set() quando o documento ainda não existe. */
+function dbWriteMerged(ref, body){
+  return ref.update(body).catch(err=>{
+    if(err && err.code === 'invalid_argument') return ref.set(body);
+    throw err;
+  });
+}
+function saveOverrideToDb(matricula, ov){
+  if(!dbNS) return;
+  setSaveStatus('saving', 'Salvando…');
+  const body = Object.assign({}, ov, {updatedAt: ov.updatedAt || new Date().toISOString()});
+  const ref = dbNS.collection('overrides').doc(String(matricula));
+  dbWriteMerged(ref, body)
+    .then(()=> setSaveStatus('saved', 'Alterações salvas'))
+    .catch(err=>{
+      console.error('[db-save]', err);
+      setSaveStatus('error', 'Erro ao salvar — a edição ficou só nesta janela');
+    });
+}
+function applyOverrideDoc(id, data){
+  if(!data){ delete state.overrides[id]; return; }
+  const ov = {};
+  if(data.frente) ov.frente = data.frente;
+  if('deslig' in data) ov.deslig = data.deslig || null;
+  if(data.updatedAt) ov.updatedAt = data.updatedAt;
+  if(data.realizado) ov.realizado = data.realizado;
+  state.overrides[id] = ov;
+}
+async function initDbPersistence(){
+  if(!window.claude || typeof window.claude.use !== 'function'){
+    setSaveStatus('unavailable', 'Salvamento automático indisponível nesta versão do arquivo');
+    return;
+  }
+  let db;
+  try{ db = await window.claude.use('db'); } catch(err){ db = null; }
+  if(!db){
+    setSaveStatus('unavailable', 'Salvamento automático indisponível nesta visualização');
+    return;
+  }
+  dbNS = db;
+  try{
+    const snap = await dbNS.collection('overrides').get();
+    snap.docs.forEach(d=> applyOverrideDoc(d.id, d.data()));
+    refreshAfterOverrideChange();
+    setSaveStatus('ready', 'Salvamento automático ativo — as edições ficam visíveis para quem abrir este link');
+    dbNS.collection('overrides').onSnapshot((snap2)=>{
+      let changed = false;
+      snap2.docChanges().forEach(ch=>{
+        if(ch.type==='removed'){ if(state.overrides[ch.doc.id]){ delete state.overrides[ch.doc.id]; changed = true; } return; }
+        applyOverrideDoc(ch.doc.id, ch.doc.data());
+        changed = true;
+      });
+      if(changed) refreshAfterOverrideChange();
+    }, (err)=> console.error('[db-watch]', err));
+  }catch(err){
+    console.error('[db-init]', err);
+    setSaveStatus('error', 'Não foi possível carregar as edições salvas');
+  }
+}
+
+/* ==================== SAVE ALL: manual "SALVAR ALTERAÇÕES" button ====================
+   As edições já salvam sozinhas a cada alteração de campo (db e/ou Google Sheets, conforme
+   o canal disponível). Este botão é um reforço manual: reenvia tudo que está em
+   state.overrides agora mesmo, útil se algum salvamento automático tiver falhado
+   silenciosamente ou para ter a confirmação explícita de que está tudo salvo. */
+function saveAllChanges(){
+  const btn = document.getElementById('saveAllBtn');
+  const entries = Object.entries(state.overrides);
+  if(entries.length === 0){
+    setSaveStatus('saved', 'Nada para salvar — nenhuma edição feita ainda.');
+    return;
+  }
+  if(!dbNS && !sheetsUrl){
+    saveOverridesLocal();
+    setSaveStatus('saved', 'Salvo neste computador — nenhuma sincronização entre computadores configurada.');
+    return;
+  }
+  if(btn) btn.disabled = true;
+  setSaveStatus('saving', `Salvando ${entries.length} edição${entries.length>1?'ões':''}…`);
+  const tasks = [];
+  entries.forEach(([matricula, ov])=>{
+    const body = Object.assign({}, ov, {updatedAt: ov.updatedAt || new Date().toISOString()});
+    if(dbNS) tasks.push(dbWriteMerged(dbNS.collection('overrides').doc(String(matricula)), body));
+    if(sheetsUrl){
+      tasks.push(sendSetOverride(parseInt(matricula,10), body.frente, body.deslig, body.updatedAt));
+      /* Real vai separado, pelo caminho de mescla — nunca dentro do setOverride acima
+         (que não carrega mais "realizado" de propósito; ver sendSetOverride). Usa o
+         "realizadoUpdatedAt" próprio do Real (nunca o updatedAt de família/desligamento
+         acima) — mesma correção de 30/09/2026 do restante do arquivo. */
+      if(ov.realizado) tasks.push(sendPatchRealizado(parseInt(matricula,10), ov.realizado, ov.realizadoUpdatedAt || body.updatedAt));
+    }
+  });
+  saveOverridesLocal();
+  const done = ()=>{ if(btn) btn.disabled = false; };
+  if(tasks.length){
+    /* sendSetOverride/sendPatchRealizado nunca rejeitam a Promise (uma falha de rede vira
+       fila local, ver flushPendingSync) — só dbWriteMerged pode rejeitar de verdade. Por
+       isso o resultado (true/false) de cada tarefa da planilha é conferido à parte, pra
+       avisar quando algo ficou só na fila em vez de dizer "salvo" incondicionalmente. */
+    Promise.all(tasks)
+      .then((results)=>{
+        const algumaPendente = results.some(r=> r === false);
+        if(algumaPendente){
+          setSaveStatus('saved', 'Salvo neste computador — algumas edições ficaram na fila e serão enviadas quando a conexão voltar.');
+        } else {
+          setSaveStatus('saved', 'Todas as alterações foram salvas.');
+        }
+      })
+      .catch(err=>{ console.error('[save-all]', err); setSaveStatus('error', 'Algumas alterações não puderam ser salvas.'); })
+      .finally(done);
+  } else {
+    setTimeout(()=>{ setSaveStatus('saved', 'Alterações enviadas para a planilha.'); done(); }, 500);
+  }
+}
+
+/* ==================== TRABALHO OFFLINE: cache local + fila de sincronização pendente ====================
+   Fora do claude.ai (arquivo baixado), tanto o "db" nativo quanto a planilha exigem internet.
+   Para o dashboard funcionar sem conexão E não perder nada, duas coisas acontecem sempre
+   que uma edição é feita (família, desligamento ou Real), com ou sem internet:
+   1) state.overrides inteiro é salvo no localStorage deste navegador (saveOverridesLocal) —
+      isso é o que garante que, mesmo sem nenhuma URL de planilha configurada, fechar a aba,
+      desligar o computador ou ficar sem internet não apaga a edição: ela reaparece sozinha
+      da próxima vez que este mesmo navegador abrir o arquivo (loadOverridesLocal, chamado
+      antes de init()).
+   2) Se houver uma planilha conectada mas o envio falhar (sem internet, ou qualquer erro de
+      rede), a edição entra numa fila (PENDING_SYNC_KEY, também no localStorage) em vez de só
+      logar um erro no console. A fila é tentada de novo automaticamente quando a conexão
+      volta (evento 'online' do navegador) e a cada ciclo da sincronização periódica — e fica
+      resumida no aviso ao lado do botão "Sincronizar entre computadores", pra ficar visível
+      que existem edições feitas offline ainda não repassadas pra planilha. */
+const OVERRIDES_STORE_KEY = 'histogramaSBPG_overrides_v1';
+function saveOverridesLocal(){
+  try{ localStorage.setItem(OVERRIDES_STORE_KEY, JSON.stringify(state.overrides)); }
+  catch(err){ /* localStorage indisponível/cheio — segue sem cache local nesta janela */ }
+}
+function loadOverridesLocal(){
+  try{
+    const raw = localStorage.getItem(OVERRIDES_STORE_KEY);
+    if(!raw) return;
+    const saved = JSON.parse(raw);
+    Object.keys(saved || {}).forEach(matricula=>{ state.overrides[matricula] = saved[matricula]; });
+  }catch(err){ /* célula corrompida/indisponível — ignora e segue com o que vier do banco/planilha */ }
+}
+
+const PENDING_SYNC_KEY = 'histogramaSBPG_pendingSync_v1';
+function readPendingSync(){
+  try{ return JSON.parse(localStorage.getItem(PENDING_SYNC_KEY) || '{}'); }
+  catch(err){ return {}; }
+}
+function writePendingSync(map){
+  try{ localStorage.setItem(PENDING_SYNC_KEY, JSON.stringify(map)); }
+  catch(err){ /* localStorage indisponível — a fila só existe em memória nesta sessão */ }
+}
+/* Cada entrada é indexada por uma chave que colapsa reenvios repetidos do mesmo dado numa
+   única entrada "a mais recente vale" — reenviar não duplica nem precisa respeitar ordem. */
+function queuePendingSync(key, entry){
+  const map = readPendingSync();
+  map[key] = entry;
+  writePendingSync(map);
+}
+function removePendingSync(key){
+  const map = readPendingSync();
+  if(key in map){ delete map[key]; writePendingSync(map); }
+}
+function pendingSyncCount(){
+  return Object.keys(readPendingSync()).length;
+}
+let flushingPendingSync = false;
+async function flushPendingSync(){
+  if(!sheetsUrl || flushingPendingSync) return;
+  const map = readPendingSync();
+  const keys = Object.keys(map);
+  if(!keys.length) return;
+  flushingPendingSync = true;
+  try{
+    for(const key of keys){
+      const entry = map[key];
+      const ok = entry.type === 'setOverride'
+        ? await sendSetOverride(entry.matricula, entry.frente, entry.deslig, entry.updatedAt, false)
+        : await sendPatchRealizado(entry.matricula, entry.realizadoPatch, entry.updatedAt, false);
+      if(ok) removePendingSync(key);
+    }
+  } finally {
+    flushingPendingSync = false;
+    updateSheetsSyncStatus();
+  }
+}
+/* Dispara ao voltar a conexão (evento nativo do navegador) — reenvia o que ficou pendente e
+   já aproveita pra puxar o que outros computadores possam ter salvo enquanto este estava
+   offline. */
+function onBackOnline(){
+  flushPendingSync().then(()=> pullFromSheets(false));
+}
+window.addEventListener('online', onBackOnline);
+
+/* ==================== SYNC: Google Apps Script + Google Sheets (standalone .html only) ====================
+   Este canal só faz sentido no arquivo baixado (.html), aberto fora do claude.ai: a versão publicada
+   como link do claude.ai bloqueia fetch() para hosts externos (CSP da página), então lá o salvamento
+   usa só a capacidade nativa (db) acima. Ver initSheetsSync(). */
+const SHEETS_STORE_KEY = 'histogramaSBPG_sheetsUrl';
+let sheetsUrl = '';
+let sheetsSyncStarted = false;
+let sheetsSyncInFlight = false;
+
+/* Serializa TODOS os envios pra planilha (setOverride e patchRealizado) numa fila única, um
+   de cada vez — nunca dois em paralelo. Corrige uma corrida real encontrada em 29/09/2026:
+   patchRealizado_() no Apps Script lê a célula inteira de "realizado", mescla o mês novo por
+   cima e regrava a célula toda; se duas chamadas para a MESMA matrícula chegam ao servidor
+   quase juntas (é exatamente o que acontecia no carregamento automático do Real — ver
+   seedRealizadoAll — que dispara um patchRealizado por mês, e cada colaborador tem meses
+   diferentes gravados quase ao mesmo tempo), as duas podem ler a célula ANTES de qualquer
+   uma escrever de volta. A que terminar de escrever por último "vence" e apaga, na planilha,
+   o mês que a outra tinha acabado de mesclar — mesmo sem nenhum erro aparecer em lugar
+   nenhum (a chamada em si teve sucesso, só o resultado ficou errado no servidor). Reproduzido
+   com Playwright: sem esta fila, 100% dos colaboradores com Real em mais de um mês perdiam
+   um dos meses no backend a cada carregamento da página. Enviar um de cada vez, nesta fila,
+   garante que cada patchRealizado sempre lê o estado já atualizado pela gravação anterior —
+   dentro deste navegador. (Duas pessoas editando ao mesmo tempo em computadores diferentes
+   ainda dependem da trava do lado do servidor — ver LockService em GoogleAppsScript_Sync.gs.) */
+let sheetsWriteQueue = Promise.resolve();
+function enqueueSheetsWrite(taskFn){
+  const run = () => Promise.resolve().then(taskFn).catch(err=>{ console.error('[sheets-queue]', err); return false; });
+  sheetsWriteQueue = sheetsWriteQueue.then(run, run);
+  return sheetsWriteQueue;
+}
+/* Correção de 30/09/2026: como todo envio pra planilha passa por uma fila serializada
+   (enqueueSheetsWrite, ver acima — item 6 do doc de sincronização), um único `fetch` que
+   nunca responde (rede instável, Apps Script travado por causa de outra execução, etc.)
+   travava a fila inteira pra sempre: nenhum outro envio depois dele conseguia sequer começar,
+   e "SALVAR ALTERAÇÕES" ficava preso em "Salvando…" indefinidamente, sem nenhum erro. Envolve
+   todo `fetch` pra planilha com um prazo máximo (20s): se estourar, cai no mesmo caminho de
+   "falhou" de sempre (entra na fila de reenvio pendente) em vez de travar a fila. */
+function fetchComPrazo(url, opts, prazoMs){
+  const controller = new AbortController();
+  const timer = setTimeout(()=> controller.abort(), prazoMs || 20000);
+  return fetch(url, Object.assign({}, opts, {signal: controller.signal})).finally(()=> clearTimeout(timer));
+}
+
+function loadSheetsUrl(){
+  try{ sheetsUrl = localStorage.getItem(SHEETS_STORE_KEY) || ''; }
+  catch(err){ sheetsUrl = ''; }
+}
+function persistSheetsUrl(url){
+  try{
+    if(url) localStorage.setItem(SHEETS_STORE_KEY, url);
+    else localStorage.removeItem(SHEETS_STORE_KEY);
+  }catch(err){ /* localStorage indisponível — segue só nesta sessão */ }
+}
+function updateSheetsSyncStatus(msg, cls){
+  const el = document.getElementById('sheetsSyncStatus');
+  const discBtn = document.getElementById('sheetsSyncDisconnectBtn');
+  if(discBtn) discBtn.hidden = !sheetsUrl;
+  if(!el) return;
+  if(!sheetsUrl){
+    el.textContent = 'Sincronização automática não configurada — as edições continuam salvas neste computador.';
+    el.className = 'sheets-sync-status';
+    return;
+  }
+  const pending = pendingSyncCount();
+  if(msg){
+    el.textContent = msg + (pending ? ` (${pending} edição${pending>1?'ões':''} aguardando conexão)` : '');
+    el.className = 'sheets-sync-status' + (cls ? ' '+cls : '');
+    return;
+  }
+  if(!navigator.onLine){
+    el.textContent = `Sem conexão — as edições ficam salvas neste computador${pending ? ` (${pending} aguardando)` : ''} e são enviadas automaticamente quando a internet voltar.`;
+    el.className = 'sheets-sync-status';
+    return;
+  }
+  if(pending){
+    el.textContent = `Conectado — ${pending} edição${pending>1?'ões':''} feita${pending>1?'s':''} offline ainda sendo enviada${pending>1?'s':''}…`;
+    el.className = 'sheets-sync-status';
+    return;
+  }
+  const agora = new Date();
+  el.textContent = 'Conectado — última sincronização às ' + agora.toLocaleTimeString('pt-BR') + '.';
+  el.className = 'sheets-sync-status ok';
+}
+/* IMPORTANTE: esta função nunca envia "realizado". A ação "setOverride" no
+   GoogleAppsScript_Sync.gs grava a linha inteira (matricula/frente/deslig/updatedAt) e,
+   desde a correção de 28/09/2026, propositalmente NÃO toca mais na coluna "realizado" —
+   ela só é alterada pela ação "patchRealizado" (mescla mês a mês no servidor, ver
+   sendPatchRealizado). Antes dessa correção, uma simples edição de família ou de
+   previsão de desligamento reenviava como "realizado" só o que ESTA aba/dispositivo tinha
+   carregado localmente — se outro mês tivesse sido salvo por outro dispositivo (ou ainda
+   não tivesse sido lido de volta da planilha), essa gravação sobrescrevia a linha inteira
+   e apagava esses meses do Real na planilha. Ver claude/sincronizacao-dashboard-netlify-sheets.md.
+
+   Devolve true/false (nunca lança) — quem chama pode usar o resultado pra saber se ficou
+   pendente. Sem internet (ou qualquer erro de rede), a edição entra na fila de sincronização
+   pendente (queueOnFail, ligado por padrão) em vez de só logar um erro no console: assim
+   nada se perde enquanto não há conexão, e o reenvio acontece sozinho depois (ver
+   flushPendingSync). queueOnFail=false é usado pelo próprio flushPendingSync, que já
+   controla a fila diretamente e não quer reenfileirar o que acabou de tentar reenviar. */
+async function sendSetOverride(matricula, frente, deslig, updatedAt, queueOnFail){
+  if(queueOnFail === undefined) queueOnFail = true;
+  if(!sheetsUrl) return false;
+  const body = {
+    matricula, frente: frente || '', deslig: deslig || '',
+    updatedAt: updatedAt || new Date().toISOString()
+  };
+  return enqueueSheetsWrite(async ()=>{
+    try{
+      await fetchComPrazo(sheetsUrl, {
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'}, // evita pre-flight CORS com o Apps Script
+        body: JSON.stringify(Object.assign({action:'setOverride'}, body))
+      });
+      return true;
+    }catch(err){
+      console.error('[sheets-push]', err);
+      if(queueOnFail){
+        queuePendingSync('setOverride:'+matricula, Object.assign({type:'setOverride'}, body));
+        updateSheetsSyncStatus();
+      }
+      return false;
+    }
+  });
+}
+/* Igual a sendSetOverride, mas só manda o "realizado" (mesclado no servidor, mês a
+   mês, dentro da mesma célula) — nunca manda família/desligamento, pra não correr o risco
+   de apagar, com um dado antigo desta janela, uma edição feita ao mesmo tempo em outra
+   janela. Requer a versão do GoogleAppsScript_Sync.gs com a ação "patchRealizado"
+   (mescla no servidor); numa versão antiga do script isso é ignorado sem erro.
+
+   Mesma lógica de fila que sendSetOverride — com uma diferença: se já existir uma entrada
+   pendente para esta matrícula (ex.: dois meses editados offline antes do primeiro
+   reenvio), os meses são mesclados na mesma entrada da fila em vez de a segunda falha
+   substituir a primeira, pra não perder o mês que ficou pendente antes.
+
+   O "updatedAt" enviado aqui é sempre o "realizadoUpdatedAt" de quem chama (nunca o
+   ov.updatedAt de família/desligamento) — no servidor (GoogleAppsScript_Sync.gs,
+   patchRealizado_), ele grava numa coluna própria ("realizadoUpdatedAt"), separada da
+   coluna "updatedAt" usada por família/desligamento. Ver a correção de 30/09/2026 no
+   comentário de patchRealizado_ do .gs e em wireMatrixEdits acima. */
+async function sendPatchRealizado(matricula, realizadoPatch, updatedAt, queueOnFail){
+  if(queueOnFail === undefined) queueOnFail = true;
+  if(!sheetsUrl) return false;
+  return enqueueSheetsWrite(async ()=>{
+    try{
+      await fetchComPrazo(sheetsUrl, {
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify({
+          action:'patchRealizado', matricula,
+          realizadoPatch: JSON.stringify(realizadoPatch || {}),
+          updatedAt: updatedAt || new Date().toISOString()
+        })
+      });
+      return true;
+    }catch(err){
+      console.error('[sheets-push-patch]', err);
+      if(queueOnFail){
+        const key = 'patchRealizado:'+matricula;
+        const existing = readPendingSync()[key];
+        const mergedPatch = Object.assign({}, existing && existing.type==='patchRealizado' ? existing.realizadoPatch : {}, realizadoPatch || {});
+        queuePendingSync(key, {type:'patchRealizado', matricula, realizadoPatch: mergedPatch, updatedAt: updatedAt || new Date().toISOString()});
+        updateSheetsSyncStatus();
+      }
+      return false;
+    }
+  });
+}
+async function pullFromSheets(mostrarErro){
+  if(!sheetsUrl || sheetsSyncInFlight) return;
+  sheetsSyncInFlight = true;
+  try{
+    const resp = await fetchComPrazo(sheetsUrl + '?action=getAll', {cache:'no-store'});
+    const dados = await resp.json();
+    if(!dados || !dados.ok) throw new Error((dados && dados.error) || 'resposta inválida');
+    let changed = false;
+    /* "frente"/"deslig" são valores únicos — entre local e remoto, vale o mais recente
+       (updatedAt da linha toda). "realizado" é tratado à parte, SEMPRE mesclado mês a mês,
+       nunca decidido pela comparação de updatedAt da linha: family/desligamento e Real são
+       gravados em momentos diferentes, então o updatedAt da linha reflete só a última
+       edição de QUALQUER campo, não necessariamente a mais recente do Real. Sem isso, uma
+       edição de família/desligamento feita nesta aba ANTES da primeira leitura da planilha
+       terminar (ov local nasce sem "realizado", com updatedAt de agora) fazia esta função
+       achar que o local já era "mais novo" que a linha inteira da planilha e pulava a
+       aplicação do remoto por completo — mesmo a planilha tendo meses de Real corretos
+       (já protegidos pela correção de 28/09/2026 do lado do upsert_) que este navegador
+       ainda não tinha carregado. */
+    (dados.overrides || []).forEach(row=>{
+      const matricula = parseInt(row.matricula, 10);
+      if(!matricula) return;
+      const remoteUpdatedAt = row.updatedAt ? new Date(row.updatedAt).getTime() : 0;
+      const local = state.overrides[matricula];
+      const localUpdatedAt = local && local.updatedAt ? new Date(local.updatedAt).getTime() : -1;
+      const ov = Object.assign({}, local);
+      let rowChanged = false;
+      if(remoteUpdatedAt >= localUpdatedAt){
+        if(row.frente){ ov.frente = row.frente; rowChanged = true; }
+        if('deslig' in row){ ov.deslig = row.deslig || null; rowChanged = true; }
+        ov.updatedAt = row.updatedAt || ov.updatedAt || new Date().toISOString();
+      }
+      if(row.realizado){
+        let remoteReal = null;
+        try{ remoteReal = JSON.parse(row.realizado); }catch(err){ /* célula corrompida ou vazia — ignora */ }
+        if(remoteReal){
+          Object.keys(remoteReal).forEach(ym=>{
+            if(remoteReal[ym] == null) return;
+            if(ov.realizado && ov.realizado[ym] != null) return; // não sobrescreve o que este navegador já tem
+            ov.realizado = Object.assign({}, ov.realizado, {[ym]: remoteReal[ym]});
+            rowChanged = true;
+          });
+          /* Só metadado (não decide nada) — guarda pra refletir na UI/fila local, mas nunca é
+             comparado com o updatedAt de família/desligamento (ver correção de 30/09/2026). */
+          if(row.realizadoUpdatedAt) ov.realizadoUpdatedAt = row.realizadoUpdatedAt;
+        }
+      }
+      if(rowChanged){
+        state.overrides[matricula] = ov;
+        changed = true;
+      }
+    });
+    if(changed) refreshAfterOverrideChange();
+    updateSheetsSyncStatus();
+  }catch(err){
+    console.error('[sheets-pull]', err);
+    if(mostrarErro) updateSheetsSyncStatus('Não foi possível conectar. Confira a URL e tente novamente.', 'error');
+  }finally{
+    sheetsSyncInFlight = false;
+  }
+}
+function iniciarSincronizacaoPeriodica(){
+  if(sheetsSyncStarted || !sheetsUrl) return;
+  sheetsSyncStarted = true;
+  setInterval(()=>{ flushPendingSync(); pullFromSheets(false); }, 5000);
+}
+async function conectarSheets(){
+  const input = document.getElementById('sheetsUrlInput');
+  const url = (input.value || '').trim();
+  if(!url){ alert('Cole a URL do Google Apps Script antes de salvar.'); return; }
+  if(!url.startsWith('https://script.google.com/')){
+    if(!confirm('Essa URL não parece ser de um Google Apps Script (normalmente começa com https://script.google.com/...). Salvar mesmo assim?')) return;
+  }
+  sheetsUrl = url;
+  persistSheetsUrl(url);
+  updateSheetsSyncStatus('Conectando…');
+  await pullFromSheets(true);
+  /* Conectar pela primeira vez (ou reconectar) é também a hora de despachar qualquer
+     edição que já estivesse na fila offline — ex.: colaborador trabalhou offline antes
+     mesmo de configurar a planilha, ou trocou de URL. */
+  await flushPendingSync();
+  iniciarSincronizacaoPeriodica();
+}
+function desconectarSheets(){
+  if(!confirm('Desconectar a sincronização automática? As edições passam a ficar salvas só neste computador.')) return;
+  sheetsUrl = '';
+  persistSheetsUrl('');
+  const input = document.getElementById('sheetsUrlInput');
+  if(input) input.value = '';
+  updateSheetsSyncStatus();
+}
+function initSheetsSync(){
+  if(window.claude && typeof window.claude.use === 'function') return; // versão publicada: usa o salvamento nativo (db), não este canal
+  loadSheetsUrl();
+  const toggleRow = document.getElementById('sheetsSyncToggleRow');
+  const panel = document.getElementById('sheetsSyncPanel');
+  const toggleBtn = document.getElementById('sheetsSyncToggleBtn');
+  const saveBtn = document.getElementById('sheetsSyncSaveBtn');
+  const discBtn = document.getElementById('sheetsSyncDisconnectBtn');
+  const input = document.getElementById('sheetsUrlInput');
+  if(toggleRow) toggleRow.hidden = false;
+  if(input) input.value = sheetsUrl;
+  updateSheetsSyncStatus();
+  if(toggleBtn && panel) toggleBtn.addEventListener('click', ()=>{ panel.hidden = !panel.hidden; });
+  if(saveBtn) saveBtn.addEventListener('click', conectarSheets);
+  if(discBtn) discBtn.addEventListener('click', desconectarSheets);
+  if(sheetsUrl){
+    if(panel) panel.hidden = false;
+    updateSheetsSyncStatus('Conectando…');
+    return pullFromSheets(false).then(flushPendingSync).then(iniciarSincronizacaoPeriodica);
+  }
+}
+
+function hexAlpha(hex, alpha){
+  const r = parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), bl=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${bl},${alpha})`;
+}
+function compactBRL(v){
+  if(v===0) return '0';
+  if(Math.abs(v)>=1000) return (v/1000).toFixed(1).replace('.', ',')+'k';
+  return v.toFixed(0);
+}
+
+/* ==================== RENDER: employee table ==================== */
+const EMP_COLS = [
+  {key:'nome', label:'Colaborador', align:'left'},
+  {key:'frente', label:'Família', align:'left'},
+  {key:'cargo', label:'Cargo', align:'left'},
+  {key:'salario', label:'Salário base'},
+  {key:'custoAtual', label:'Custo atual/mês'},
+  {key:'horizonte', label:'Custo no período'},
+  {key:'prevDeslig', label:'Prev. desligamento'},
+  {key:'tendencia', label:'Tendência no período'}
+];
+
+function empRows(){
+  const {rangeStart:a, rangeEnd:b} = state;
+  return filteredEmployees().map(e=>{
+    let custoAtual=0;
+    /* Custo recorrente do mês, sem o valor de rescisão que fica embutido no mês de saída. */
+    for(let i=b;i>=a;i--){ if((e.monthly[i]||0)>0){ custoAtual = e.custo_aprox * DISSIDIO_MULT[i]; break; } }
+    return {
+      raw:e, nome:e.nome, frente:e.frente, cargo:e.cargo, situacao:e.situacao, salario:e.salario||0,
+      custoAtual, horizonte: rangeSum(e,a,b), prevDeslig:e.prev_deslig,
+      series: e.monthly.slice(a,b+1)
+    };
+  });
+}
+
+function sparkSVG(series){
+  const w=96,h=26,pad=3;
+  const max = Math.max(...series, 0.0001);
+  const min = 0;
+  const step = series.length>1 ? (w-2*pad)/(series.length-1) : 0;
+  const pts = series.map((v,i)=>{
+    const x = pad + i*step;
+    const y = h-pad - (v-min)/(max-min||1) * (h-2*pad);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  const lastX = pad + (series.length-1)*step;
+  const lastY = h-pad - (series[series.length-1]-min)/(max-min||1) * (h-2*pad);
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <polyline points="${pts}" fill="none" stroke="#2a78d6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="2.4" fill="#0f7d70"/>
+  </svg>`;
+}
+
+function renderEmployeeTable(){
+  let rows = empRows();
+  if(state.empFiltroFamilia){
+    rows = rows.filter(r => r.frente === state.empFiltroFamilia);
+  }
+  if(state.empFiltroCargo){
+    rows = rows.filter(r => r.cargo === state.empFiltroCargo);
+  }
+  if(state.empSearch){
+    rows = rows.filter(r => r.nome.toLowerCase().includes(state.empSearch) || r.cargo.toLowerCase().includes(state.empSearch));
+  }
+  const {key, dir} = state.empSort;
+  rows.sort((x,y)=>{
+    let vx=x[key], vy=y[key];
+    if(key==='prevDeslig'){ vx = vx||'9999'; vy = vy||'9999'; }
+    if(typeof vx === 'string'){ vx = vx.toLowerCase(); vy = vy.toLowerCase(); }
+    if(vx<vy) return dir==='asc' ? -1:1;
+    if(vx>vy) return dir==='asc' ? 1:-1;
+    return 0;
+  });
+
+  document.getElementById('empCount').textContent = `${rows.length} de ${filteredEmployees().length} colaboradores`;
+
+  const table = document.getElementById('empTable');
+  let thead = '<thead><tr>';
+  EMP_COLS.forEach(c=>{
+    const active = state.empSort.key===c.key;
+    const arrow = active ? (state.empSort.dir==='asc' ? '&uarr;' : '&darr;') : '&darr;';
+    thead += `<th class="sortable ${active?'active':''}" data-key="${c.key}" style="text-align:${c.align||'right'}">${c.label} <span class="arrow">${arrow}</span></th>`;
+  });
+  thead += '</tr></thead>';
+
+  let tbody = '<tbody>';
+  if(rows.length===0){
+    tbody += `<tr><td colspan="${EMP_COLS.length}" class="empty-state">Nenhum colaborador encontrado.</td></tr>`;
+  }
+  rows.forEach(r=>{
+    tbody += `<tr>
+      <td><div class="name-cell"><span class="nm">${r.nome}</span></div></td>
+      <td><span class="badge badge-frente" style="background:${hexAlpha(FRENTE_COLORS[r.frente],0.16)}"><span class="dot" style="background:${FRENTE_COLORS[r.frente]}"></span>${titleCase(r.frente)}</span></td>
+      <td>${r.cargo}</td>
+      <td class="mono">${BRL.format(r.salario)}</td>
+      <td class="mono">${BRL.format(r.custoAtual)}</td>
+      <td class="mono">${BRL.format(r.horizonte)}</td>
+      <td class="mono">${r.prevDeslig ? fmtCompetencia(r.prevDeslig) : '&mdash;'}</td>
+      <td>${sparkSVG(r.series)}</td>
+    </tr>`;
+  });
+  tbody += '</tbody>';
+  table.innerHTML = thead + tbody;
+
+  table.querySelectorAll('th.sortable').forEach(th=>{
+    th.addEventListener('click', ()=>{
+      const k = th.getAttribute('data-key');
+      if(state.empSort.key===k){ state.empSort.dir = state.empSort.dir==='asc'?'desc':'asc'; }
+      else { state.empSort = {key:k, dir: (k==='nome'||k==='frente'||k==='cargo') ? 'asc':'desc'}; }
+      renderEmployeeTable();
+    });
+  });
+}
+function fmtCompetencia(ym){
+  const i = monthIndex(ym);
+  return i>=0 ? MONTH_LABELS[i] : ym;
+}
+
+/* ==================== SUMMARY + ORCHESTRATION ==================== */
+function renderSummary(){
+  const n = state.frentes.size;
+  const total = FRENTES.length;
+  document.getElementById('frenteBtnLabel').textContent = n===total ? 'Todas as famílias' : (n===0 ? 'Nenhuma família' : `${n} família(s)`);
+  document.getElementById('frenteCount').textContent = n;
+  document.getElementById('rangeLabel').textContent = `${MONTH_LABELS[state.rangeStart]} — ${MONTH_LABELS[state.rangeEnd]} (${state.rangeEnd-state.rangeStart+1} meses)`;
+  document.getElementById('filterSummary').innerHTML =
+    `<b>${filteredEmployees().length}</b> de ${EMPLOYEES.length} colaboradores &middot; <b>${n}</b> de ${total} famílias &middot; ${MONTH_LABELS[state.rangeStart]}–${MONTH_LABELS[state.rangeEnd]}`;
+}
+
+function safe(label, fn){
+  try{ fn(); } catch(err){ console.error('['+label+']', err); }
+}
+function onFilterChange(){
+  safe('summary', renderSummary);
+  safe('kpis', renderKPIs);
+  safe('evo-charts', renderEvoCharts);
+  safe('frente-chart', renderFrenteChart);
+  safe('matrix', renderMatrix);
+  safe('employee-table', renderEmployeeTable);
+}
+
+/* Link da planilha "Custo Geral" — ainda não recebido do usuário. Assim que o link
+   (ou a URL publicada do Google Sheets) for enviado, colar aqui para o botão no topo
+   direito do dashboard abrir a planilha diretamente. A intenção futura é conectar essa
+   planilha ao histograma (mesmo mecanismo de sincronização já usado para o Real, via
+   Google Apps Script — ver initSheetsSync). */
+const CUSTO_GERAL_URL = '';
+
+function initCustoGeralBtn(){
+  const btn = document.getElementById('custoGeralBtn');
+  if(!btn) return;
+  if(CUSTO_GERAL_URL){
+    btn.href = CUSTO_GERAL_URL;
+  } else {
+    btn.removeAttribute('target');
+    btn.classList.add('btn-disabled');
+    btn.addEventListener('click', (e)=>{
+      e.preventDefault();
+      alert('A planilha "Custo Geral" ainda não foi conectada a este dashboard. Assim que o link for configurado, este botão abrirá a planilha diretamente.');
+    });
+  }
+}
+
+function init(){
+  buildFrenteChecks();
+  buildRangeSelects();
+  buildEmpFiltroSelects();
+  buildMatFrenteChecks();
+  buildMatColabChecks();
+  wireMatrixEdits();
+  initCustoGeralBtn();
+  document.getElementById('genDate').textContent = 'Gerado em ' + new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'});
+  onFilterChange();
+}
+
+/* ==================== SEED: Real de julho/2026 a partir da FOPAG ====================
+   Carga automática de valores "Real" — classificados a partir dos arquivos de FOPAG de
+   cada mês (Proventos, Descontos, Rescisão, Vale Refeição, Vale Transporte), seguindo a
+   mesma metodologia (bloco / grupo de custo / efeito no custo / incidência de encargos:
+   Custo = todos os proventos + FGTS real + VR + VT; Redutor = coparticipação VR/VT
+   (2453/3149/3159) e devolução de VR/VT não utilizado (3059/3070); Encargos patronais
+   (INSS Patronal + RAT + Terceiros) estimados em 28,8% sobre os proventos mensais,
+   excluindo o próprio FGTS) documentada no projeto. Chave externa = mês (AAAA-MM), chave
+   interna = matrícula. Roda para todos os meses do objeto sempre que a página carrega,
+   mas cada mês só é aplicado uma vez por colaborador: se já existir um valor Real salvo
+   para aquele mês (nesta janela, no banco do claude.ai ou na planilha do Google Sheets),
+   ele não é sobrescrito — então acrescentar um novo mês aqui é seguro mesmo com pessoas
+   já usando o dashboard. */
+const REALIZADO_SEED = {
+  "2026-07": {"5":6786.43,"9":6543.94,"29":6834.08,"36":18555.97,"39":4895.04,"42":9449.49,"50":8026.5,"58":4323.82,"60":6590.7,"73":8020.54,"86":5977.48,"100":6102.26,"110":7916.23,"116":5579.21,"139":5345.65,"164":7778.67,"167":5847.68,"174":5189.83,"189":6679.54,"212":5936.04,"241":4066.49,"242":5939.36,"243":5487.48,"264":1344.95,"265":1344.95,"269":4287.97,"272":3407.71,"277":4151.41,"279":3602.38,"281":5023.7,"201":1328.2},
+  "2026-08": {"5":8333.32,"9":7131.49,"29":11251.43,"36":22920.63,"39":4787.68,"42":10385.79,"50":9076.12,"58":4533.38,"60":6675.09,"73":9046.73,"86":6707.56,"100":7358.95,"110":9138.71,"116":6161.23,"139":2941.36,"164":8440.56,"167":6339.32,"174":5434.85,"189":6751.79,"212":5658.49,"241":4625.13,"242":5843.03,"243":5436.13,"264":1356.28,"265":1356.28,"269":5451.08,"272":4784.13,"277":5467.37,"279":4762.75,"281":5696.24,"201":350.68}
+};
+function seedRealizadoAll(){
+  let changed = false;
+  Object.keys(REALIZADO_SEED).forEach(ym=>{
+    const seed = REALIZADO_SEED[ym];
+    Object.keys(seed).forEach(key=>{
+      const matricula = parseInt(key, 10);
+      const existing = state.overrides[matricula];
+      if(existing && existing.realizado && existing.realizado[ym] != null) return;
+      const updatedAt = new Date().toISOString();
+      const valor = seed[key];
+      /* Atualiza o estado local (mesclando com o que já existir) só para exibir na hora.
+         Correção de 30/09/2026: grava em "realizadoUpdatedAt", NUNCA em "updatedAt" — este
+         carregamento automático não pode "adiantar o relógio" que decide se este computador
+         aceita a família/desligamento vinda de outro computador (ver comentário completo em
+         sendPatchRealizado e em wireMatrixEdits). */
+      const localOv = Object.assign({}, existing);
+      localOv.realizado = Object.assign({}, localOv.realizado, {[ym]: valor});
+      localOv.realizadoUpdatedAt = updatedAt;
+      state.overrides[matricula] = localOv;
+      /* No servidor, grava só o campo "realizado" (merge) — nunca reenvia família/desligamento
+         daqui, pra não correr o risco de sobrescrever, com um dado antigo desta janela, uma
+         edição de família/desligamento feita ao mesmo tempo em outra janela. */
+      if(dbNS){
+        dbWriteMerged(dbNS.collection('overrides').doc(String(matricula)), {realizado: {[ym]: valor}, updatedAt})
+          .catch(err=> console.error('[db-seed]', err));
+      }
+      if(sheetsUrl) sendPatchRealizado(matricula, {[ym]: valor}, updatedAt);
+      changed = true;
+    });
+  });
+  if(changed) refreshAfterOverrideChange();
+}
+
+/* Carrega o que já estava salvo neste navegador (localStorage) ANTES de renderizar pela
+   primeira vez — assim, edições feitas offline (ou qualquer edição, mesmo com internet:
+   este cache local é sempre o primeiro a responder) já aparecem na tela de imediato, sem
+   esperar a resposta do banco (db) ou da planilha, que só chegam depois, de forma
+   assíncrona, e mesclam por cima do que for mais recente. */
+loadOverridesLocal();
+init();
+/* Importante: o carregamento automático do Real (seedRealizadoAll) só pode rodar DEPOIS
+   que as edições já salvas (família/desligamento/realizado) tiverem sido carregadas —
+   seja do banco nativo (initDbPersistence) ou da planilha (initSheetsSync). Antes dessa
+   correção, o seed rodava sempre 300ms após initDbPersistence, sem esperar a primeira
+   leitura da planilha terminar: se a leitura ainda não tivesse voltado, state.overrides
+   estava vazio, e o seed criava um objeto novo só com "realizado" — apagando localmente
+   (e por um tempo, também "confirmando" isso como o dado mais recente) a previsão de
+   desligamento que já estava salva. Era essa a causa da previsão "sumir sozinha" também
+   no arquivo baixado/Netlify (não só na versão publicada). */
+Promise.all([initDbPersistence(), initSheetsSync()]).then(()=>{ setTimeout(seedRealizadoAll, 300); });
+document.getElementById('saveAllBtn').addEventListener('click', saveAllChanges);
+
+let resizeT;
+window.addEventListener('resize', ()=>{
+  clearTimeout(resizeT);
+  resizeT = setTimeout(()=>{ safe('evo-charts', renderEvoCharts); safe('frente-chart', renderFrenteChart); }, 180);
+});
+</script>
