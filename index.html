@@ -1531,6 +1531,11 @@ function wireFamiliaEditor(){
     state.overrides[matricula] = ov;
     refreshAfterOverrideChange();
     saveOverrideToDb(matricula, ov);
+    /* Manda pra planilha (Google Sheets) — mesmo canal de sincronização entre computadores já
+       usado por família/desligamento/Real. Só o mês alterado agora é enviado (mesclado no
+       servidor, nunca substitui a célula inteira); se não houver planilha conectada,
+       sendPatchFrentePorMes devolve false sem fazer nada, igual às outras edições. */
+    sendPatchFrentePorMes(matricula, {[mes]: el.value}, ov.updatedAt);
     renderFamiliaEditor(); /* atualiza a grade: meses seguintes herdam a nova família até o próximo carimbo */
   });
 }
@@ -1707,6 +1712,10 @@ function saveAllChanges(){
          "realizadoUpdatedAt" próprio do Real (nunca o updatedAt de família/desligamento
          acima) — mesma correção de 30/09/2026 do restante do arquivo. */
       if(ov.realizado) tasks.push(sendPatchRealizado(parseInt(matricula,10), ov.realizado, ov.realizadoUpdatedAt || body.updatedAt));
+      /* Família por mês (botão "Editar família") vai junto, também pelo caminho de mescla —
+         manda o mapa inteiro que este navegador tem; o servidor mescla mês a mês (mesmo que
+         algum já exista lá, reenviar não tem efeito colateral, é idempotente). */
+      if(ov.frentePorMes && Object.keys(ov.frentePorMes).length) tasks.push(sendPatchFrentePorMes(parseInt(matricula,10), ov.frentePorMes, body.updatedAt));
     }
   });
   saveOverridesLocal();
@@ -1796,6 +1805,8 @@ async function flushPendingSync(){
       const entry = map[key];
       const ok = entry.type === 'setOverride'
         ? await sendSetOverride(entry.matricula, entry.frente, entry.deslig, entry.updatedAt, false)
+        : entry.type === 'patchFrentePorMes'
+        ? await sendPatchFrentePorMes(entry.matricula, entry.frentePorMesPatch, entry.updatedAt, false)
         : await sendPatchRealizado(entry.matricula, entry.realizadoPatch, entry.updatedAt, false);
       if(ok) removePendingSync(key);
     }
@@ -1895,15 +1906,18 @@ function updateSheetsSyncStatus(msg, cls){
   el.textContent = 'Conectado — última sincronização às ' + agora.toLocaleTimeString('pt-BR') + '.';
   el.className = 'sheets-sync-status ok';
 }
-/* IMPORTANTE: esta função nunca envia "realizado". A ação "setOverride" no
-   GoogleAppsScript_Sync.gs grava a linha inteira (matricula/frente/deslig/updatedAt) e,
-   desde a correção de 28/09/2026, propositalmente NÃO toca mais na coluna "realizado" —
-   ela só é alterada pela ação "patchRealizado" (mescla mês a mês no servidor, ver
-   sendPatchRealizado). Antes dessa correção, uma simples edição de família ou de
+/* IMPORTANTE: esta função nunca envia "realizado" nem "frentePorMes". A ação "setOverride" no
+   GoogleAppsScript_Sync.gs (upsert_) grava só as colunas 1-4 (matricula/frente/deslig/
+   updatedAt) e, desde a correção de 28/09/2026, propositalmente NÃO toca mais na coluna
+   "realizado" — ela só é alterada pela ação "patchRealizado" (mescla mês a mês no servidor,
+   ver sendPatchRealizado). Antes dessa correção, uma simples edição de família ou de
    previsão de desligamento reenviava como "realizado" só o que ESTA aba/dispositivo tinha
    carregado localmente — se outro mês tivesse sido salvo por outro dispositivo (ou ainda
    não tivesse sido lido de volta da planilha), essa gravação sobrescrevia a linha inteira
    e apagava esses meses do Real na planilha. Ver claude/sincronizacao-dashboard-netlify-sheets.md.
+   A coluna "frentePorMes" (a família por mês do botão "Editar família", a partir de
+   30/09/2026) segue a mesma lógica — só é alterada pela ação "patchFrentePorMes" (ver
+   sendPatchFrentePorMes e patchFrentePorMes_ no .gs), pelo mesmo motivo.
 
    Devolve true/false (nunca lança) — quem chama pode usar o resultado pra saber se ficou
    pendente. Sem internet (ou qualquer erro de rede), a edição entra na fila de sincronização
@@ -1980,6 +1994,45 @@ async function sendPatchRealizado(matricula, realizadoPatch, updatedAt, queueOnF
     }
   });
 }
+/* Igual a sendPatchRealizado, mas para a família-por-mês editada no botão "Editar família"
+   (ov.frentePorMes) — mescla no servidor, mês a mês, dentro da mesma célula (coluna
+   "frentePorMes" do GoogleAppsScript_Sync.gs), pela mesma razão que o Real usa mescla: duas
+   edições em meses diferentes, mandadas quase juntas, não podem se sobrescrever.
+
+   DIFERENÇA em relação a sendPatchRealizado: aqui o "updatedAt" enviado é o MESMO ov.updatedAt
+   de família/desligamento (não um relógio próprio) — de propósito, porque família-por-mês é
+   conceitualmente parte do mesmo grupo "família/desligamento" (ver comentário completo em
+   patchFrentePorMes_ no GoogleAppsScript_Sync.gs). Requer a versão do .gs com a ação
+   "patchFrentePorMes"; numa versão antiga do script isso é ignorado sem erro (ação
+   desconhecida), então a edição fica só neste computador até o .gs ser atualizado. */
+async function sendPatchFrentePorMes(matricula, frentePorMesPatch, updatedAt, queueOnFail){
+  if(queueOnFail === undefined) queueOnFail = true;
+  if(!sheetsUrl) return false;
+  return enqueueSheetsWrite(async ()=>{
+    try{
+      await fetchComPrazo(sheetsUrl, {
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify({
+          action:'patchFrentePorMes', matricula,
+          frentePorMesPatch: JSON.stringify(frentePorMesPatch || {}),
+          updatedAt: updatedAt || new Date().toISOString()
+        })
+      });
+      return true;
+    }catch(err){
+      console.error('[sheets-push-patch-familia]', err);
+      if(queueOnFail){
+        const key = 'patchFrentePorMes:'+matricula;
+        const existing = readPendingSync()[key];
+        const mergedPatch = Object.assign({}, existing && existing.type==='patchFrentePorMes' ? existing.frentePorMesPatch : {}, frentePorMesPatch || {});
+        queuePendingSync(key, {type:'patchFrentePorMes', matricula, frentePorMesPatch: mergedPatch, updatedAt: updatedAt || new Date().toISOString()});
+        updateSheetsSyncStatus();
+      }
+      return false;
+    }
+  });
+}
 async function pullFromSheets(mostrarErro){
   if(!sheetsUrl || sheetsSyncInFlight) return;
   sheetsSyncInFlight = true;
@@ -2010,6 +2063,19 @@ async function pullFromSheets(mostrarErro){
       if(remoteUpdatedAt >= localUpdatedAt){
         if(row.frente){ ov.frente = row.frente; rowChanged = true; }
         if('deslig' in row){ ov.deslig = row.deslig || null; rowChanged = true; }
+        if(row.frentePorMes){
+          let remoteFPM = null;
+          try{ remoteFPM = JSON.parse(row.frentePorMes); }catch(err){ /* célula corrompida/vazia — ignora */ }
+          if(remoteFPM && Object.keys(remoteFPM).length){
+            /* A planilha (coluna "frentePorMes") só é MESCLADA por patchFrentePorMes_, nunca
+               sobrescrita por inteiro — então remoteFPM é sempre um superconjunto do que já foi
+               enviado por qualquer computador. Aqui, o remoto entra como base e o que este
+               navegador já tinha localmente fica por cima, só pra não perder uma edição feita
+               offline/ainda não confirmada na fila de reenvio (queuePendingSync). */
+            ov.frentePorMes = Object.assign({}, remoteFPM, ov.frentePorMes);
+            rowChanged = true;
+          }
+        }
         ov.updatedAt = row.updatedAt || ov.updatedAt || new Date().toISOString();
       }
       if(row.realizado){
