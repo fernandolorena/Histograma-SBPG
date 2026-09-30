@@ -286,6 +286,41 @@ tbody tr:last-child td{border-bottom:none;}
 .name-cell .cg{font-size:10.5px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .matrix-table .badge-frente{white-space:normal; line-height:1.25; max-width:100%;}
 
+/* ---------- Editor de família por mês (modal) ---------- */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(15,15,12,0.55); z-index:200;
+  display:flex; align-items:center; justify-content:center; padding:24px;
+}
+.modal-overlay[hidden]{display:none !important;}
+.modal-box{
+  background:var(--surface-1); border-radius:var(--radius-lg); box-shadow:0 24px 60px -20px rgba(0,0,0,0.45);
+  padding:20px 22px; max-width:1360px; width:100%; max-height:88vh; display:flex; flex-direction:column;
+}
+.modal-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:2px;}
+.modal-title{font-family:"Sora","IBM Plex Sans",sans-serif; font-size:16px; font-weight:700; color:var(--text-primary);}
+.modal-close{
+  background:none; border:none; font-size:22px; line-height:1; color:var(--text-muted); cursor:pointer;
+  padding:2px 8px; border-radius:6px;
+}
+.modal-close:hover{background:var(--surface-3); color:var(--text-primary);}
+.modal-table-scroll{overflow:auto; margin-top:10px; border-radius:var(--radius-md); border:1px solid var(--border); max-height:65vh;}
+.familia-editor-table{border-collapse:collapse; width:100%; font-size:11.5px;}
+.familia-editor-table th, .familia-editor-table td{padding:5px 6px; border-bottom:1px solid var(--border); white-space:nowrap;}
+.familia-editor-table thead th{
+  position:sticky; top:0; background:var(--surface-2); z-index:5; font-weight:600; font-size:11px;
+  color:var(--text-secondary); text-align:center;
+}
+.familia-editor-table thead th:first-child{text-align:left;}
+.familia-editor-table td:first-child, .familia-editor-table th:first-child{
+  position:sticky; left:0; background:var(--surface-1); z-index:4; box-shadow:1px 0 0 var(--border-strong);
+  min-width:206px; max-width:206px; white-space:normal;
+}
+.familia-editor-table thead th:first-child{background:var(--surface-2); z-index:6;}
+.familia-editor-table td select{width:132px; font-size:10.8px; padding:3px 5px;}
+.familia-editor-table td.mes-alterado{background:rgba(15,125,112,0.09);}
+.familia-editor-table td.mes-alterado select{border-color:var(--accent-strong); font-weight:600;}
+.familia-badge-readonly{cursor:default;}
+
 /* employee table */
 th.sortable{cursor:pointer; user-select:none;}
 th.sortable:hover{color:var(--text-primary);}
@@ -422,10 +457,17 @@ footer{margin-top:30px; padding-top:18px; border-top:1px solid rgba(11,11,11,0.1
 
   <div class="section panel">
     <div class="panel-head">
-      <span class="panel-title">Projeção mês a mês &middot; por colaborador</span>
-      <span class="panel-note">mesma leitura lado a lado da aba Controle HH — role para o lado para ver todos os meses do período</span>
+      <div>
+        <span class="panel-title">Projeção mês a mês &middot; por colaborador</span>
+        <span class="panel-note">mesma leitura lado a lado da aba Controle HH — role para o lado para ver todos os meses do período</span>
+      </div>
+      <button class="btn" id="editFamiliaBtn" type="button" style="margin-left:auto;">&#9998; Editar família</button>
     </div>
     <div class="table-toolbar">
+      <div class="filter-group" id="matFamiliaMesWrap">
+        <span class="filter-label">Família em</span>
+        <select class="field" id="matFamiliaMesSelect"></select>
+      </div>
       <div class="filter-group pop-wrap" id="matFrenteWrap">
         <span class="filter-label">Família</span>
         <button class="btn" id="matFrenteBtn" aria-expanded="false">
@@ -459,7 +501,6 @@ footer{margin-top:30px; padding-top:18px; border-top:1px solid rgba(11,11,11,0.1
       </div>
       <span class="panel-note" id="matrixSummary" style="margin-left:auto;"></span>
     </div>
-    <div class="panel-note" style="margin:-2px 0 10px;">Família e previsão de desligamento são editáveis diretamente na tabela — ao alterar, a projeção mensal e a rescisão são recalculadas automaticamente (estimativa) para aquele colaborador, marcado como <span class="edited-tag" style="position:static; display:inline-block; margin-left:2px;">simulado</span>. Abaixo de cada valor projetado, o campo <b>Real</b> guarda o valor efetivamente realizado naquele mês — atualizado mensalmente a partir do arquivo de FOPAG.</div>
     <div class="save-row">
       <button class="btn btn-save" id="saveAllBtn" type="button">SALVAR ALTERAÇÕES</button>
       <span class="save-status" id="saveStatus" hidden></span>
@@ -477,6 +518,19 @@ footer{margin-top:30px; padding-top:18px; border-top:1px solid rgba(11,11,11,0.1
     </div>
     <div class="table-scroll">
       <table class="matrix-table" id="matrixTable"></table>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="familiaModalOverlay" hidden>
+    <div class="modal-box">
+      <div class="modal-head">
+        <span class="modal-title">Editar família por mês</span>
+        <button class="modal-close" id="familiaModalClose" type="button" aria-label="Fechar">&times;</button>
+      </div>
+      <div class="panel-note">Escolha, mês a mês, a família de cada colaborador. Ao alterar um mês, a nova família passa a valer também em todos os meses seguintes — até você definir outra alteração num mês posterior. As células destacadas marcam um mês onde houve alteração manual.</div>
+      <div class="modal-table-scroll">
+        <table class="familia-editor-table" id="familiaEditorTable"></table>
+      </div>
     </div>
   </div>
 
@@ -529,6 +583,17 @@ function monthIndex(ym){ return MONTHS.indexOf(ym); }
 function yearOf(ym){ return parseInt(ym.split('-')[0],10); }
 const YEARS = [...new Set(MONTHS.map(yearOf))];
 
+/* Mês de referência padrão da coluna "Família" na matriz: o mês corrente, se estiver
+   dentro do horizonte da projeção; senão o primeiro mês >= hoje; senão o último mês. */
+function defaultFamiliaRefMonthIndex(){
+  const now = new Date();
+  const ymAtual = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  let idx = MONTHS.indexOf(ymAtual);
+  if(idx < 0) idx = MONTHS.findIndex(m => m >= ymAtual);
+  if(idx < 0) idx = MONTHS.length - 1;
+  return idx;
+}
+
 /* ==================== STATE ==================== */
 const state = {
   frentes: new Set(FRENTES),
@@ -542,7 +607,8 @@ const state = {
   matrixFrentes: new Set(FRENTES),
   matrixColabs: new Set(EMPLOYEES.map(e=>e.matricula)),
   matColabSearch: '',
-  overrides: {} /* matricula -> {frente?, deslig?} — deslig: 'YYYY-MM' | null; undefined = not edited */
+  familiaRefMonth: defaultFamiliaRefMonthIndex(), /* índice em MONTHS usado pela coluna "Família" da matriz */
+  overrides: {} /* matricula -> {frente?, deslig?, frentePorMes?} — deslig: 'YYYY-MM' | null; frentePorMes: {'YYYY-MM': 'FAMÍLIA'} = a família passa a valer a partir daquele mês (e nos seguintes, até a próxima alteração); undefined = não editado */
 };
 
 /* ==================== SIMULATION: editable desligamento / família ====================
@@ -707,13 +773,40 @@ function computeProjectedMonthly(emp, deslig){
   }
   return applyHorasExtrasSetOut(applyFeriasVencidas(apply13Salario(arr, emp, exitIdx), emp, exitIdx), emp, exitIdx);
 }
+/* Resolve a família de um colaborador em um mês específico, dado o override dele
+   (ou undefined). Prioriza frentePorMes (o "carimbo" mais recente cujo mês seja
+   <= ao mês consultado) sobre o antigo campo único ov.frente, que por sua vez
+   prevalece sobre a família original (baseFrente) vinda do PAYLOAD. */
+function resolveFrenteAtRaw(baseFrente, ov, monthIdx){
+  if(ov && ov.frentePorMes){
+    const ym = MONTHS[monthIdx];
+    let best = null, bestKey = null;
+    Object.keys(ov.frentePorMes).forEach(k=>{
+      if(k <= ym && (bestKey===null || k > bestKey)){ bestKey = k; best = ov.frentePorMes[k]; }
+    });
+    if(best) return best;
+  }
+  if(ov && ov.frente) return ov.frente;
+  return baseFrente;
+}
+const EMP_BY_MATRICULA = new Map(EMPLOYEES.map(e=>[e.matricula, e]));
+function resolveFrenteAt(matricula, monthIdx){
+  const base = EMP_BY_MATRICULA.get(matricula);
+  return resolveFrenteAtRaw(base ? base.frente : null, state.overrides[matricula], monthIdx);
+}
 function computeEffective(emp){
   const ov = state.overrides[emp.matricula];
   if(!ov) return emp;
   let out = emp;
   let simulated = false;
-  if(ov.frente && ov.frente !== emp.frente){
-    out = Object.assign({}, out, {frente: ov.frente});
+  /* Família "atual" do colaborador (usada em gráficos, filtros e na lista de custo por
+     colaborador) = família resolvida no ÚLTIMO mês do horizonte, ou seja, a mais recente
+     adotada — inclui tanto o campo único legado ov.frente quanto as alterações mês a mês
+     feitas no editor "Editar família" (ov.frentePorMes). A coluna "Família" da matriz usa
+     resolveFrenteAt() diretamente, mês a mês, em vez desse valor único. */
+  const frenteAtual = resolveFrenteAtRaw(emp.frente, ov, MONTHS.length - 1);
+  if(frenteAtual !== emp.frente){
+    out = Object.assign({}, out, {frente: frenteAtual});
     simulated = true;
   }
   if(ov.deslig !== undefined){
@@ -1309,13 +1402,13 @@ function renderMatrix(){
   emps.forEach(e=>{
     const sum = rangeSum(e,a,b);
     grandTotal += sum;
-    const frenteOptions = FRENTES.map(fr=>`<option value="${fr}" ${fr===e.frente?'selected':''}>${titleCase(fr)}</option>`).join('');
+    const famNoMes = resolveFrenteAt(e.matricula, state.familiaRefMonth);
     const desligOptions = `<option value="" ${!e.prev_deslig?'selected':''}>Ativo (sem previsão)</option>` +
       MONTHS.map((m,i)=>`<option value="${m}" ${m===e.prev_deslig?'selected':''}>${MONTH_LABELS[i]}</option>`).join('');
     tbody += `<tr>
       <td class="sticky-col"><div class="name-cell"><span class="nm">${e.nome}</span><span class="cg">${e.cargo}</span>${e._edited?'<span class="edited-tag">simulado</span>':''}</div></td>
       <td class="sticky-col2">
-        <select class="edit-select frente-select" data-matricula="${e.matricula}" data-field="frente" style="border-color:${FRENTE_COLORS[e.frente]}; background:${hexAlpha(FRENTE_COLORS[e.frente],0.2)};">${frenteOptions}</select>
+        <span class="badge badge-frente familia-badge-readonly" style="background:${hexAlpha(FRENTE_COLORS[famNoMes],0.16)}"><span class="dot" style="background:${FRENTE_COLORS[famNoMes]}"></span>${titleCase(famNoMes)}</span>
       </td>
       <td><select class="edit-select deslig-select" data-matricula="${e.matricula}" data-field="deslig">${desligOptions}</select></td>`;
     for(let i=a;i<=b;i++){
@@ -1366,6 +1459,91 @@ function refreshAfterOverrideChange(){
   safe('mat-frente-checks', buildMatFrenteChecks);
   safe('mat-colab-checks', buildMatColabChecks);
 }
+
+/* ==================== EDITOR "Editar família" (mês a mês) ====================
+   Grade com todos os colaboradores x todos os meses do horizonte. Cada célula é um
+   <select> com a família daquele colaborador naquele mês, sempre pré-preenchido com
+   o valor resolvido (resolveFrenteAt). Ao alterar uma célula, grava um "carimbo" em
+   ov.frentePorMes[mês] = nova família — que passa a valer daquele mês em diante, até
+   o próximo carimbo (se houver). Nesta versão de visualização, a alteração é salva
+   localmente (localStorage) e no banco do próprio Artifact (mesmo caminho já usado
+   para família/desligamento/real) — ainda NÃO é enviada para a planilha do Google
+   Sheets (sendSetOverride/.gs); isso fica para depois que o formato for validado com
+   o Fernando, pra não mexer de novo no protocolo de sincronização entre computadores
+   logo após a correção de 30/09/2026. */
+function familiaEditorRows(){
+  return EMPLOYEES.slice().sort((x,y)=> x.nome.localeCompare(y.nome));
+}
+function renderFamiliaEditor(){
+  const table = document.getElementById('familiaEditorTable');
+  if(!table) return;
+  const rows = familiaEditorRows();
+  let thead = '<thead><tr><th>Colaborador</th>';
+  MONTH_LABELS.forEach(lbl=> thead += `<th>${lbl}</th>`);
+  thead += '</tr></thead>';
+  let tbody = '<tbody>';
+  rows.forEach(emp=>{
+    const ov = state.overrides[emp.matricula];
+    const stamps = (ov && ov.frentePorMes) ? ov.frentePorMes : {};
+    tbody += `<tr><td><div class="name-cell"><span class="nm">${emp.nome}</span><span class="cg">${emp.cargo}</span></div></td>`;
+    for(let i=0;i<MONTHS.length;i++){
+      const ym = MONTHS[i];
+      const fam = resolveFrenteAt(emp.matricula, i);
+      const alterado = Object.prototype.hasOwnProperty.call(stamps, ym);
+      const opts = FRENTES.map(fr=>`<option value="${fr}" ${fr===fam?'selected':''}>${titleCase(fr)}</option>`).join('');
+      tbody += `<td class="${alterado?'mes-alterado':''}"><select class="edit-select familia-mes-select" data-matricula="${emp.matricula}" data-mes="${ym}">${opts}</select></td>`;
+    }
+    tbody += '</tr>';
+  });
+  tbody += '</tbody>';
+  table.innerHTML = thead + tbody;
+}
+function openFamiliaModal(){
+  renderFamiliaEditor();
+  document.getElementById('familiaModalOverlay').hidden = false;
+}
+function closeFamiliaModal(){
+  document.getElementById('familiaModalOverlay').hidden = true;
+}
+function wireFamiliaEditor(){
+  const btn = document.getElementById('editFamiliaBtn');
+  if(btn) btn.addEventListener('click', openFamiliaModal);
+  const closeBtn = document.getElementById('familiaModalClose');
+  if(closeBtn) closeBtn.addEventListener('click', closeFamiliaModal);
+  const overlay = document.getElementById('familiaModalOverlay');
+  if(overlay){
+    overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeFamiliaModal(); });
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && !overlay.hidden) closeFamiliaModal(); });
+  }
+  const table = document.getElementById('familiaEditorTable');
+  if(!table) return;
+  table.addEventListener('change', (e)=>{
+    const el = e.target;
+    if(!(el.matches && el.matches('.familia-mes-select'))) return;
+    const matricula = parseInt(el.getAttribute('data-matricula'),10);
+    const mes = el.getAttribute('data-mes');
+    if(!matricula || !mes) return;
+    const ov = Object.assign({}, state.overrides[matricula]);
+    const frentePorMes = Object.assign({}, ov.frentePorMes);
+    frentePorMes[mes] = el.value;
+    ov.frentePorMes = frentePorMes;
+    ov.updatedAt = new Date().toISOString();
+    state.overrides[matricula] = ov;
+    refreshAfterOverrideChange();
+    saveOverrideToDb(matricula, ov);
+    renderFamiliaEditor(); /* atualiza a grade: meses seguintes herdam a nova família até o próximo carimbo */
+  });
+}
+function buildMatFamiliaMesSelect(){
+  const sel = document.getElementById('matFamiliaMesSelect');
+  if(!sel) return;
+  sel.innerHTML = MONTH_LABELS.map((lbl,i)=>`<option value="${i}" ${i===state.familiaRefMonth?'selected':''}>${lbl}</option>`).join('');
+  sel.addEventListener('change', ()=>{
+    state.familiaRefMonth = parseInt(sel.value,10);
+    safe('matrix', renderMatrix);
+  });
+}
+
 function wireMatrixEdits(){
   const table = document.getElementById('matrixTable');
   table.addEventListener('change', (e)=>{
@@ -1464,6 +1642,7 @@ function applyOverrideDoc(id, data){
   if('deslig' in data) ov.deslig = data.deslig || null;
   if(data.updatedAt) ov.updatedAt = data.updatedAt;
   if(data.realizado) ov.realizado = data.realizado;
+  if(data.frentePorMes) ov.frentePorMes = data.frentePorMes;
   state.overrides[id] = ov;
 }
 async function initDbPersistence(){
@@ -2084,7 +2263,9 @@ function init(){
   buildEmpFiltroSelects();
   buildMatFrenteChecks();
   buildMatColabChecks();
+  buildMatFamiliaMesSelect();
   wireMatrixEdits();
+  wireFamiliaEditor();
   initCustoGeralBtn();
   document.getElementById('genDate').textContent = 'Gerado em ' + new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'});
   onFilterChange();
