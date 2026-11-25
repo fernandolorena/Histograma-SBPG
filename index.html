@@ -1,5 +1,7 @@
-<title>Histograma SBPG</title>
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
+<title>Histograma – Custo de pessoal · SBPG</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -370,8 +372,407 @@ footer{margin-top:30px; padding-top:18px; border-top:1px solid rgba(11,11,11,0.1
   .kpi-grid{grid-template-columns:1fr;}
   .wrap{padding:18px 14px 48px;}
 }
+
+/* ---------- Painel gerencial: shell ---------- */
+:root{--nav-h:58px;}
+.shell{
+  position:sticky; top:0; z-index:80;
+  background:var(--surface-1); border-bottom:1px solid var(--border-strong);
+  box-shadow:0 6px 16px -14px rgba(20,18,12,.35);
+}
+.shell-in{
+  max-width:1440px; margin:0 auto; padding:0 28px; min-height:var(--nav-h);
+  display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+}
+.shell-brand{display:flex; flex-direction:column; line-height:1.15; padding:8px 0;}
+.shell-brand .b1{font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-strong); font-weight:600;}
+.shell-brand .b2{font-family:"Sora",sans-serif; font-size:17px; font-weight:700;}
+.shell-tabs{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto; padding:8px 0;}
+.tab-btn{
+  font-family:"IBM Plex Sans",sans-serif; font-size:13.5px; font-weight:600; cursor:pointer;
+  background:var(--surface-2); color:var(--text-secondary);
+  border:1px solid var(--border-strong); border-radius:10px; padding:9px 18px;
+  transition:background .15s, color .15s, border-color .15s;
+}
+.tab-btn:hover{border-color:var(--accent-strong); color:var(--text-primary);}
+.tab-btn[aria-selected="true"]{background:var(--text-primary); color:var(--surface-1); border-color:var(--text-primary);}
+.tab-btn:focus-visible,.fam-btn:focus-visible{outline:2px solid var(--accent-strong); outline-offset:2px;}
+.view[hidden]{display:none !important;}
+.filterbar{top:var(--nav-h) !important;}
+
+.fam-bar{
+  max-width:1440px; margin:18px auto 0; padding:0 28px;
+}
+.fam-bar-in{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-md);
+  padding:10px 12px; box-shadow:var(--shadow-card);
+}
+.fam-bar .filter-label{margin-right:4px;}
+.fam-btn{
+  display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+  font-family:"IBM Plex Sans",sans-serif; font-size:12.5px; font-weight:500;
+  background:var(--surface-2); color:var(--text-secondary);
+  border:1px solid var(--border-strong); border-radius:999px; padding:7px 13px;
+  transition:background .15s, border-color .15s, color .15s;
+}
+.fam-btn:hover{border-color:var(--accent-strong);}
+.fam-btn .dot{width:9px; height:9px;}
+.fam-btn[aria-pressed="true"]{background:var(--text-primary); color:var(--surface-1); border-color:var(--text-primary);}
+.fam-btn.all[aria-pressed="true"]{background:var(--accent-strong); border-color:var(--accent-strong); color:#fff;}
+.fam-btn .n{font-family:"IBM Plex Mono",monospace; font-size:11px; opacity:.75;}
+
+.view-empty .wrap{padding-top:28px;}
+.empty-card{
+  background:var(--surface-1); border:1px dashed var(--border-strong); border-radius:var(--radius-lg);
+  padding:34px 30px; display:grid; gap:14px; max-width:880px;
+}
+.empty-card h2{font-size:22px;}
+.empty-card p{margin:0; color:var(--text-secondary); font-size:14px; max-width:62ch;}
+.slot-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-top:6px;}
+.slot{background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-md); padding:14px 16px; min-width:0;}
+.slot .k{font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); font-weight:600;}
+.slot .v{font-family:"IBM Plex Mono",monospace; font-size:22px; color:var(--text-muted); margin-top:6px;}
+.slot .u{font-size:11.5px; color:var(--text-muted); margin-top:4px;}
+@media (max-width:640px){
+  .shell-in{padding:0 14px;}
+  .fam-bar{padding:0 14px;}
+  .shell-tabs{margin-left:0; width:100%;}
+  .tab-btn{flex:1 1 auto; padding:9px 10px; font-size:13px;}
+  :root{--nav-h:104px;}
+}
+
+/* ---------- Frotas ---------- */
+.fr-two{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+.chart-box.tall{height:300px;}
+.fr-tfoot td{background:var(--surface-2); color:var(--text-primary); font-weight:600; border-top:1px solid var(--border-strong); border-bottom:none;}
+.badge-prop{background:var(--accent-soft); color:var(--accent-strong);}
+.badge-loc{background:rgba(11,11,11,0.045); color:var(--text-secondary); border:1px solid var(--border-strong);}
+#frTable td:nth-child(n+3):nth-child(-n+7){text-align:left;}
+#frTable thead th:nth-child(n+3):nth-child(-n+7){text-align:left;}
+#frTable td{color:var(--text-primary);}
+#frTable td,#frTable th{padding-left:8px; padding-right:8px;}
+@media (max-width:900px){ .fr-two{grid-template-columns:1fr;} }
+
+#cbTable td:nth-child(2),#cbTable td:nth-child(3){text-align:left;}
+#cbTable td{color:var(--text-primary);}
+#cbTable td,#cbTable th{padding-left:8px; padding-right:8px;}
+
+#eqTable td{color:var(--text-primary);}
+#eqTable td,#eqTable th{padding-left:8px; padding-right:8px;}
+#eqTable td:nth-child(-n+4),#eqTable thead th:nth-child(-n+4){text-align:left;}
+
+/* =====================================================================
+   CAMADA VISUAL MODERNA (nov/2026) — sidebar, capa, tokens, aba Fluxo
+   ===================================================================== */
+:root{
+  --bg:#f3f5f9; --surface-1:#ffffff; --surface-2:#f4f6fa; --surface-3:#e8ecf2;
+  --border:rgba(15,23,42,.08); --border-strong:rgba(15,23,42,.15);
+  --text-primary:#0f172a; --text-secondary:#475569; --text-muted:#64748b;
+  --accent:#14b8a6; --accent-strong:#0f766e; --accent-soft:rgba(20,184,166,.12);
+  --radius-lg:18px; --radius-md:14px; --radius-sm:10px;
+  --shadow-card:0 1px 2px rgba(15,23,42,.04), 0 10px 28px -14px rgba(15,23,42,.14);
+  --nav-w:252px; --nav-h:0px;
+}
+body{font-family:"Inter","IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; padding-left:var(--nav-w); background:var(--bg);}
+h1,h2,h3{font-family:"Inter","Sora",sans-serif; letter-spacing:-.02em;}
+.wrap{padding:26px 32px 64px; max-width:1480px;}
+
+/* ---------- Sidebar ---------- */
+.shell{position:fixed; top:0; bottom:0; left:0; width:var(--nav-w); z-index:90; overflow-y:auto;
+  background:linear-gradient(185deg,#0a1222 0%,#0f1b33 60%,#0c2a3a 130%); border:0; box-shadow:none;}
+.shell-in{max-width:none; margin:0; padding:24px 14px 18px; min-height:100%; display:flex; flex-direction:column; align-items:stretch; gap:16px; flex-wrap:nowrap;}
+.shell-brand{padding:2px 10px 16px; border-bottom:1px solid rgba(255,255,255,.09); gap:4px;}
+.shell-brand .b1{color:#5eead4; font-size:10px; letter-spacing:.14em;}
+.shell-brand .b2{color:#fff; font-family:"Inter",sans-serif; font-size:19px; font-weight:700; letter-spacing:-.02em;}
+.shell-tabs{display:flex; flex-direction:column; gap:3px; margin:0; padding:0; width:100%;}
+.nav-sec{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:#6f7f99; font-weight:600; padding:12px 12px 5px;}
+.shell .tab-btn{display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:transparent; border:0; border-radius:11px;
+  color:#b9c5d9; padding:10px 12px; font-family:inherit; font-size:13.5px; font-weight:500; transition:background .15s,color .15s;}
+.shell .tab-btn:hover{background:rgba(255,255,255,.07); color:#fff; border:0;}
+.shell .tab-btn[aria-selected="true"]{background:rgba(94,234,212,.15); color:#fff; box-shadow:inset 3px 0 0 #5eead4;}
+.shell .tab-btn svg{flex:none; width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+.shell-period{margin-top:auto; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:13px 13px 12px;}
+.shell-period .sp-t{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:#93a4bf; font-weight:600; margin-bottom:9px;}
+.shell-period .sp-row{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+.shell-period label{display:flex; flex-direction:column; gap:3px; font-size:10.5px; color:#93a4bf;}
+.shell-period select{width:100%; background:#0b1324; color:#e8eefb; border:1px solid rgba(255,255,255,.16); border-radius:8px; padding:6px 6px; font-size:12.5px; font-family:inherit;}
+.shell-period .sp-n{font-size:11px; color:#8c9db8; margin:9px 0 8px; line-height:1.4;}
+.shell-period button{width:100%; background:transparent; color:#5eead4; border:1px solid rgba(94,234,212,.35); border-radius:8px; padding:6px; font-size:12px; font-family:inherit; cursor:pointer;}
+.shell-period button:hover{background:rgba(94,234,212,.12);}
+
+/* ---------- Componentes existentes, mais modernos ---------- */
+.topbar{background:var(--surface-1); border-radius:var(--radius-lg); padding:20px 24px;}
+.eyebrow{font-size:11.5px; letter-spacing:.12em;}
+.topbar h1{font-size:24px; font-weight:700;}
+.filterbar{top:0 !important; background:rgba(255,255,255,.86); backdrop-filter:blur(12px); border-radius:var(--radius-md);}
+.fam-bar{padding:0 32px; margin-top:22px;}
+.kpi-card{border-radius:var(--radius-lg); padding:18px 20px;}
+.kpi-card::before{width:34px; height:4px; bottom:auto; right:auto; left:20px; top:0; border-radius:0 0 4px 4px;}
+.kpi-value{font-family:"Inter",sans-serif; font-size:25px; font-weight:650; letter-spacing:-.02em;}
+.kpi-label{letter-spacing:.06em;}
+.panel{border-radius:var(--radius-lg);}
+.btn,.reset-btn,select.field{font-family:inherit;}
+footer{margin-top:34px;}
+
+/* ---------- Capa ---------- */
+.cv-hero{position:relative; overflow:hidden; border-radius:24px; padding:38px 40px 34px; color:#fff;
+  background:radial-gradient(900px 340px at 90% -20%,rgba(45,212,191,.38),transparent 60%),linear-gradient(135deg,#0a1222 0%,#12304a 62%,#0f766e 135%);
+  box-shadow:0 24px 50px -28px rgba(10,18,34,.7);}
+.cv-bc{display:flex; align-items:center; flex-wrap:wrap; gap:8px; font-size:13px; color:#a9bad3; margin-bottom:14px;}
+.cv-bc b{color:#fff; font-weight:600;} .cv-bc i{font-style:normal; opacity:.55;}
+.cv-hero h1{font-size:38px; line-height:1.12; font-weight:750; margin:0 0 10px; max-width:20ch; color:#fff;}
+.cv-hero p{margin:0; max-width:64ch; color:#c5d3e8; font-size:15px; line-height:1.55;}
+.cv-chips{display:flex; flex-wrap:wrap; gap:10px; margin-top:22px;}
+.cv-chip{display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:7px 14px; font-size:12.5px; color:#e8f0fb;}
+.cv-chip b{color:#fff;}
+.cv-h{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin:30px 2px 12px;}
+.cv-h h2{font-size:17px; font-weight:700; margin:0;} .cv-h span{font-size:12.5px; color:var(--text-muted);}
+.cv-kpis{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px;}
+.cv-kpi{background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px 20px; box-shadow:var(--shadow-card); position:relative;}
+.cv-kpi .t{display:flex; align-items:center; gap:8px; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); font-weight:600;}
+.cv-kpi .t i{width:9px; height:9px; border-radius:3px; display:inline-block;}
+.cv-kpi .v{font-size:28px; font-weight:700; letter-spacing:-.025em; margin:8px 0 3px; font-variant-numeric:tabular-nums;}
+.cv-kpi .s{font-size:12.5px; color:var(--text-muted);}
+.cv-cards{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px;}
+.cv-card{display:flex; flex-direction:column; gap:10px; text-align:left; font-family:inherit; color:inherit; cursor:pointer;
+  background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px 22px; box-shadow:var(--shadow-card);
+  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;}
+.cv-card:hover{transform:translateY(-2px); border-color:var(--accent); box-shadow:0 18px 34px -18px rgba(15,118,110,.35);}
+.cv-card .ic{width:42px; height:42px; border-radius:12px; display:grid; place-items:center; background:var(--accent-soft); color:var(--accent-strong);}
+.cv-card .ic svg{width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+.cv-card h3{font-size:16px; font-weight:700; margin:2px 0 0;}
+.cv-card p{margin:0; font-size:13px; color:var(--text-secondary); line-height:1.5; flex:1;}
+.cv-card .st{font-size:12.5px; color:var(--text-primary); font-weight:600; font-variant-numeric:tabular-nums; padding-top:10px; border-top:1px solid var(--border);}
+.cv-card .go{font-size:12.5px; font-weight:600; color:var(--accent-strong);}
+.cv-card.soon{cursor:default; opacity:.7; background:var(--surface-2); border-style:dashed; box-shadow:none;}
+.cv-card.soon:hover{transform:none; border-color:var(--border); box-shadow:none;}
+.cv-card.soon .go{color:var(--text-muted);}
+.cv-card.soon .ic{background:var(--surface-3); color:var(--text-muted);}
+
+.tm-board{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px;} @media (max-width:640px){.tm-board{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.tm-card{display:flex; flex-direction:column; gap:12px; text-align:left; font-family:inherit; color:inherit; cursor:pointer; background:var(--surface-1); border:1px solid var(--border); border-top:4px solid var(--tc); border-radius:var(--radius-lg); padding:16px 18px; box-shadow:var(--shadow-card); transition:transform .15s ease, box-shadow .15s ease;}
+.tm-card:hover{transform:translateY(-2px); box-shadow:0 18px 34px -18px rgba(15,23,42,.35);}
+.tm-card .h{display:flex; align-items:center; gap:8px;} .tm-card .h i{width:10px; height:10px; border-radius:50%; background:var(--tc);} .tm-card h3{margin:0; font-size:15px; font-weight:700;}
+.tm-card .g{display:grid; grid-template-columns:1fr; gap:14px;} .tm-card .g b{display:block; font-size:19px; font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:-.02em;} .tm-card .g span{font-size:11px; color:var(--text-muted);}
+.tm-card .f{display:flex; justify-content:space-between; gap:8px; font-size:12px; color:var(--text-secondary); border-top:1px solid var(--border); padding-top:10px;} .tm-card .f em{font-style:normal; font-weight:600; color:var(--accent-strong); white-space:nowrap;}
+.tm-scroll{overflow-x:auto; background:var(--surface-1); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-card);}
+.tm-tbl{width:100%; border-collapse:collapse; font-size:13px;} .tm-tbl th{text-align:left; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--text-muted); padding:10px 12px; border-bottom:1px solid var(--border-strong); background:var(--surface-2); white-space:nowrap;}
+.tm-tbl td{padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:top;} .tm-tbl tr:last-child td{border-bottom:0;} .tm-tbl th,.tm-tbl td{text-align:left;} .tm-tbl th.r,.tm-tbl td.r{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap;}
+.tm-empty{padding:18px; color:var(--text-muted); font-size:13px; background:var(--surface-1); border:1px dashed var(--border-strong); border-radius:var(--radius-lg);}
+.tm-sev{display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:.04em;} .tm-sev.a{background:#fde3e3; color:#b42323;} .tm-sev.m{background:#fff0cf; color:#8a5b00;} .tm-sev.b{background:#e6edf5; color:#475467;}
+.tm-via{font-size:11.5px; color:var(--text-muted);} .tm-na{color:var(--text-muted); font-size:12px;}
+.tm-top{margin:0 0 12px;} .tm-back{font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; background:var(--surface-1); border:1px solid var(--border-strong); border-radius:999px; padding:8px 16px; color:var(--accent-strong);} .tm-back:hover{border-color:var(--accent);}
+.tm-dot{display:inline-block; width:14px; height:14px; border-radius:50%; margin-right:10px;} .tm-note{margin:22px 0 6px; font-size:12px; color:var(--text-muted); line-height:1.5;}
+#view-equipe .cv-h{margin-top:26px;} #view-equipe .cv-kpis{margin-top:16px;}
+
+
+/* ---------- Aba Fluxo financeiro (fx-) ---------- */
+.fx-head{display:flex; align-items:flex-end; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:18px;}
+.fx-head .eb{font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent-strong); font-weight:700;}
+.fx-head h1{font-size:28px; font-weight:750; margin:4px 0 4px;}
+.fx-head p{margin:0; color:var(--text-secondary); font-size:13.5px;}
+.fx-perchip{display:inline-flex; align-items:center; gap:8px; background:var(--surface-1); border:1px solid var(--border-strong); border-radius:999px; padding:8px 16px; font-size:13px; font-weight:600; box-shadow:var(--shadow-card);}
+.fx-perchip small{font-weight:500; color:var(--text-muted); font-size:11.5px;}
+.fx-sec{margin-bottom:16px;}
+.fx-groups{padding:16px 18px;}
+.fx-gh{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; flex-wrap:wrap;}
+.fx-gh .t{font-size:14px; font-weight:700;} .fx-gh .h{font-size:12px; color:var(--text-muted);}
+.fx-chips{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:10px;}
+.fx-chip{display:flex; align-items:center; gap:12px; text-align:left; font-family:inherit; color:var(--text-primary); cursor:pointer;
+  background:var(--surface-1); border:1.5px solid var(--border-strong); border-radius:14px; padding:12px 14px; transition:border-color .15s, background .15s, transform .1s;}
+.fx-chip:hover{transform:translateY(-1px); border-color:var(--text-muted);}
+.fx-chip .sw{width:16px; height:16px; border-radius:5px; flex:none;}
+.fx-chip .nm{display:block; font-size:14.5px; font-weight:650; line-height:1.2;}
+.fx-chip .vl{display:block; font-size:12.5px; color:var(--text-muted); margin-top:2px; font-variant-numeric:tabular-nums;}
+.fx-chip.on{border-color:var(--c); background:color-mix(in srgb,var(--c) 11%,#fff);}
+.fx-chip.dim{opacity:.45;}
+.fx-chip.all .sw{background:conic-gradient(#2a78d6,#eb6834,#1baf7a,#eda100,#e87ba4,#008300,#6250d6,#e34948,#2a78d6); border-radius:50%;}
+.fx-kpis{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-bottom:16px;}
+.fx-kpis .kpi-value{font-size:27px;}
+.fx-kpis .up{color:var(--critical);} .fx-kpis .down{color:var(--good);}
+.fx-ph{display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:6px;}
+.fx-ph .tt{font-size:16px; font-weight:700;} .fx-ph .ss{font-size:12.5px; color:var(--text-muted); margin-top:2px;}
+.fx-leg{display:flex; flex-wrap:wrap; gap:8px 18px; margin:10px 0 0; font-size:13px; color:var(--text-secondary);}
+.fx-leg span{display:inline-flex; align-items:center; gap:7px;}
+.fx-leg i{width:12px; height:12px; border-radius:4px; display:inline-block;}
+.fx-row2{display:grid; grid-template-columns:1.25fr 1fr; gap:14px; margin-bottom:16px;}
+.fx-svg{display:block; width:100%; overflow:visible;}
+.fx-svg text{font-family:"Inter",sans-serif; font-size:12px; fill:var(--text-secondary);}
+.fx-svg .ax{fill:var(--text-muted); font-size:11.5px;}
+.fx-svg .bar{cursor:pointer; transition:opacity .1s;} .fx-svg .bar:hover{opacity:.85;}
+.fx-tip{position:fixed; z-index:300; display:none; pointer-events:none; min-width:190px; background:#0f172a; color:#f1f5f9; border-radius:12px; padding:10px 12px; font-size:12.5px; box-shadow:0 16px 34px -12px rgba(15,23,42,.55);}
+.fx-tip b.h{display:block; margin-bottom:6px; font-size:12.5px; color:#fff;}
+.fx-tip div{display:flex; justify-content:space-between; gap:18px; font-variant-numeric:tabular-nums; line-height:1.65;}
+.fx-tip div span:first-child{display:inline-flex; align-items:center; gap:7px; color:#cbd5e1;}
+.fx-tip i{width:9px; height:9px; border-radius:3px; display:inline-block;}
+.fx-tip .tot{border-top:1px solid rgba(255,255,255,.2); margin-top:5px; padding-top:5px; font-weight:700; color:#fff;}
+.fx-tip .tot span:first-child{color:#fff;}
+.fx-tw{overflow:auto; max-height:540px; border:1px solid var(--border); border-radius:var(--radius-md); margin-top:10px;}
+.fx-t{border-collapse:separate; border-spacing:0; width:100%; font-size:13px; font-variant-numeric:tabular-nums;}
+.fx-t th,.fx-t td{padding:9px 10px; border-bottom:1px solid var(--border); white-space:nowrap; text-align:right; background:var(--surface-1); color:var(--text-primary);}
+.fx-t th{position:sticky; top:0; z-index:4; background:var(--surface-2); color:var(--text-secondary); font-size:11px; letter-spacing:.05em; text-transform:uppercase; font-weight:650; border-bottom:1px solid var(--border-strong);}
+.fx-t th.l,.fx-t td.l{text-align:left;}
+.fx-t th.p,.fx-t td.p{background:#edf4fd;} .fx-t th.p{background:#dfeafa;}
+.fx-t th.k,.fx-t td.k{position:sticky; left:0; z-index:3; text-align:left; min-width:210px; border-right:1px solid var(--border-strong);}
+.fx-t th.k{z-index:6;}
+.fx-t th.k2,.fx-t td.k2{position:sticky; left:210px; z-index:3; font-weight:700; border-right:1px solid var(--border-strong); min-width:128px;}
+.fx-t th.k2{z-index:6;}
+.fx-t tr.sum td{font-weight:700; background:var(--surface-2); border-top:1px solid var(--border-strong);}
+.fx-t tr.sum td.p{background:#dfeafa;}
+.fx-t td.z{color:#a3adbd;}
+.fx-t th.sort{cursor:pointer; user-select:none;} .fx-t th.sort:hover{color:var(--text-primary);}
+.fx-t th.sort .ar{opacity:0; margin-left:4px;} .fx-t th.sort.on .ar{opacity:1; color:var(--accent-strong);}
+.fx-dot{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:8px; vertical-align:-1px;}
+.fx-badge{display:inline-flex; align-items:center; padding:2px 9px; border-radius:999px; font-size:11.5px; font-weight:600; background:var(--surface-3); color:var(--text-secondary);}
+.fx-badge.ped{background:rgba(12,163,12,.12); color:#0a7a3a;} .fx-badge.sem{background:rgba(237,161,0,.18); color:#8a5a00;}
+.fx-tbar{display:flex; flex-wrap:wrap; align-items:flex-end; gap:12px 14px; margin:12px 0 0; padding:14px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-md);}
+.fx-f{display:flex; flex-direction:column; gap:4px;}
+.fx-f>label{font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--text-muted); font-weight:650;}
+.fx-f input,.fx-f select{font-family:inherit; font-size:13px; color:var(--text-primary); background:var(--surface-1); border:1px solid var(--border-strong); border-radius:9px; padding:7px 10px;}
+.fx-f input:focus,.fx-f select:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.fx-f .rg{display:flex; align-items:center; gap:5px;} .fx-f .rg input{width:104px;} .fx-f .rg span{color:var(--text-muted); font-size:12px;}
+.fx-f.q input{width:210px;}
+.fx-cnt{margin-left:auto; font-size:12.5px; color:var(--text-secondary);}
+.fx-note{font-size:12px; color:var(--text-muted); margin-top:14px; line-height:1.5;}
+.fx-empty{padding:44px 20px; text-align:center; color:var(--text-muted);}
+
+@media (max-width:1100px){
+  .cv-kpis,.cv-cards,.fx-kpis{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .fx-row2{grid-template-columns:1fr;}
+}
+@media (max-width:980px){
+  body{padding-left:0;}
+  .shell{position:sticky; top:0; width:auto; bottom:auto; overflow:visible;}
+  .shell-in{flex-direction:row; flex-wrap:wrap; align-items:center; padding:10px 14px; min-height:0; gap:8px;}
+  .shell-brand{border:0; padding:0 8px 0 0;}
+  .shell-tabs{flex-direction:row; overflow-x:auto; width:auto; flex:1; min-width:0;}
+  .nav-sec{display:none;}
+  .shell .tab-btn{width:auto; white-space:nowrap; padding:8px 12px;}
+  .shell-period{display:none;}
+  .filterbar{position:static;}
+  .wrap,.fam-bar{padding-left:16px; padding-right:16px;}
+  .cv-hero{padding:26px 22px;} .cv-hero h1{font-size:28px;}
+}
+@media (max-width:640px){
+  .cv-kpis,.cv-cards,.fx-kpis{grid-template-columns:1fr;}
+}
+
+/* ---------- Densidade compacta (mais informação por tela) ---------- */
+:root{--nav-w:218px;}
+body{font-size:13px;}
+.wrap{padding:16px 22px 40px;}
+.shell-in{padding:18px 10px 14px; gap:12px;}
+.shell-brand{padding:0 8px 12px;} .shell-brand .b2{font-size:16.5px;}
+.shell .tab-btn{padding:7px 10px; font-size:12.5px; gap:10px; border-radius:9px;}
+.shell .tab-btn svg{width:16px; height:16px;}
+.nav-sec{padding:8px 10px 3px; font-size:10px;}
+.shell-period{padding:10px 10px 9px;} .shell-period select{padding:4px 5px; font-size:12px;}
+.shell-period .sp-n{font-size:10.5px; margin:7px 0 6px;}
+.topbar{padding:12px 18px; margin-bottom:14px; border-radius:14px;} .topbar h1{font-size:20px;} .logo-mark{height:50px;}
+.topbar .subtitle{font-size:12.5px;}
+.filterbar{padding:8px 12px; gap:8px; margin-bottom:14px; border-radius:12px;}
+.btn{padding:6px 11px; font-size:12px;} .segmented button{padding:5px 10px; font-size:12px;}
+select.field{padding:5px 10px; font-size:12px;}
+.kpi-grid{gap:10px; margin-bottom:14px;}
+.kpi-card{padding:12px 14px; border-radius:14px;} .kpi-value{font-size:20px;} .kpi-label{font-size:10.5px; margin-bottom:5px;} .kpi-sub{font-size:11px; margin-top:3px;}
+.panel{padding:13px 16px; border-radius:14px;} .panel-title{font-size:13px;}
+.charts-row{gap:10px; margin-bottom:14px;}
+.chart-box{height:170px;} .chart-box.small{height:80px;} .frente-chart-box{height:340px;}
+.fam-bar{margin-top:14px; padding:0 22px;}
+.section{margin-bottom:14px;}
+thead th{padding:7px 8px; font-size:10px;} tbody td{padding:5px 8px; font-size:12px;}
+.matrix-table td.cell{font-size:10px;}
+footer{margin-top:20px; padding-top:12px;}
+/* capa */
+.cv-hero{padding:24px 28px 22px; border-radius:18px;} .cv-hero h1{font-size:29px; margin-bottom:6px;} .cv-hero p{font-size:13px;}
+.cv-bc{font-size:12px; margin-bottom:9px;} .cv-chips{margin-top:14px; gap:8px;} .cv-chip{padding:5px 11px; font-size:11.5px;}
+.cv-h{margin:20px 2px 9px;} .cv-h h2{font-size:15px;} .cv-h span{font-size:11.5px;}
+.cv-kpis,.cv-cards{gap:10px;}
+.cv-kpi{padding:13px 16px; border-radius:14px;} .cv-kpi .t{font-size:10.5px;} .cv-kpi .v{font-size:22px; margin:5px 0 2px;} .cv-kpi .s{font-size:11.5px;}
+.cv-card{padding:14px 16px; gap:7px; border-radius:14px;} .cv-card .ic{width:34px; height:34px; border-radius:10px;} .cv-card .ic svg{width:18px; height:18px;}
+.cv-card h3{font-size:14px;} .cv-card p{font-size:12px; line-height:1.45;} .cv-card .st{font-size:11.5px; padding-top:7px;} .cv-card .go{font-size:11.5px;}
+/* fluxo */
+.fx-head{margin-bottom:12px;} .fx-head h1{font-size:23px; margin:2px 0;} .fx-head p{font-size:12px;} .fx-head .eb{font-size:11px;}
+.fx-perchip{padding:6px 13px; font-size:12px;}
+.fx-sec{margin-bottom:12px;} .fx-groups{padding:11px 14px;} .fx-gh{margin-bottom:8px;} .fx-gh .t{font-size:13px;} .fx-gh .h{font-size:11px;}
+.fx-chips{grid-template-columns:repeat(auto-fill,minmax(172px,1fr)); gap:8px;}
+.fx-chip{padding:8px 11px; gap:9px; border-radius:11px;} .fx-chip .sw{width:13px; height:13px;} .fx-chip .nm{font-size:13px;} .fx-chip .vl{font-size:11.5px;}
+.fx-kpis{gap:10px; margin-bottom:12px;} .fx-kpis .kpi-value{font-size:21px;}
+.fx-ph .tt{font-size:14px;} .fx-ph .ss{font-size:11.5px;} .fx-leg{font-size:12px; margin-top:6px;}
+.fx-row2{gap:10px; margin-bottom:12px;}
+.fx-t{font-size:12px;} .fx-t th,.fx-t td{padding:6px 9px;} .fx-t th{font-size:10px;}
+.fx-tw{max-height:430px; margin-top:8px;}
+.fx-tbar{padding:10px 12px; gap:9px 11px; margin-top:8px;}
+.fx-f input,.fx-f select{font-size:12px; padding:5px 8px;} .fx-f .rg input{width:92px;} .fx-f.q input{width:190px;} .fx-f>label{font-size:10px;}
+.fx-note{font-size:11px; margin-top:10px;}
+.fx-chip.all .sw{border-radius:50%;}
+
+/* ---------- Compactação adicional (nível 2) ---------- */
+:root{--nav-w:200px;}
+body{font-size:12.5px;}
+.wrap{padding:12px 18px 32px;}
+.shell-in{padding:14px 8px 12px; gap:10px;}
+.shell-brand .b1{font-size:9px;} .shell-brand .b2{font-size:15px;}
+.shell .tab-btn{padding:6px 9px; font-size:12px; gap:9px;} .shell .tab-btn svg{width:15px; height:15px;}
+.nav-sec{padding:6px 9px 2px; font-size:9.5px;}
+.shell-period{padding:8px 9px;} .shell-period .sp-n{font-size:10px;}
+/* cabeçalho do histograma em uma linha só */
+.topbar{flex-wrap:nowrap; align-items:center; gap:14px; padding:8px 14px; margin-bottom:10px; border-radius:12px;}
+.topbar-left{gap:12px; min-width:0; flex:1;}
+.logo-mark{height:38px;}
+.topbar .title-block{gap:1px; min-width:0;}
+.eyebrow{font-size:10px; letter-spacing:.1em;}
+.topbar h1{font-size:17px;}
+.topbar .subtitle{font-size:11.5px; max-width:none;}
+.topbar .meta{flex-direction:row; flex-wrap:wrap; justify-content:flex-end; align-items:center; gap:6px 8px; min-width:0; flex:none; max-width:46%; font-size:11px;}
+.topbar .meta .src{padding:3px 9px; font-size:10.5px;}
+.filterbar{padding:6px 10px; gap:6px; margin-bottom:10px;}
+.fam-bar{margin-top:10px; padding:0 18px;}
+.kpi-grid{gap:8px; margin-bottom:10px;}
+.kpi-card{padding:9px 12px; border-radius:12px;} .kpi-value{font-size:18px;} .kpi-label{font-size:10px; margin-bottom:3px;} .kpi-sub{font-size:10.5px; margin-top:2px;}
+.panel{padding:10px 13px; border-radius:12px;} .panel-title{font-size:12.5px;} .panel-note{font-size:10.5px;}
+.charts-row{gap:8px; margin-bottom:10px;}
+.chart-box{height:145px; margin-top:4px;} .chart-box.small{height:66px;} .frente-chart-box{height:290px; margin-top:4px;}
+.section{margin-bottom:10px;}
+thead th{padding:6px 7px; font-size:9.5px;} tbody td{padding:4px 7px; font-size:11.5px;}
+.btn{padding:5px 10px; font-size:11.5px;} .segmented button{padding:4px 9px; font-size:11.5px;} select.field{padding:4px 9px; font-size:11.5px;}
+/* capa */
+.cv-hero{padding:18px 22px 16px; border-radius:16px;} .cv-hero h1{font-size:25px;} .cv-hero p{font-size:12.5px;}
+.cv-chips{margin-top:10px;} .cv-chip{padding:4px 10px; font-size:11px;}
+.cv-h{margin:14px 2px 7px;} .cv-h h2{font-size:14px;}
+.cv-kpis,.cv-cards{gap:8px;}
+.cv-kpi{padding:10px 14px; border-radius:12px;} .cv-kpi .v{font-size:19px; margin:3px 0 1px;} .cv-kpi .t{font-size:10px;} .cv-kpi .s{font-size:11px;}
+.cv-card{padding:11px 14px; gap:5px; border-radius:12px;} .cv-card .ic{width:30px; height:30px;} .cv-card .ic svg{width:16px; height:16px;}
+.cv-card h3{font-size:13px;} .cv-card p{font-size:11.5px;} .cv-card .st{font-size:11px; padding-top:5px;}
+/* fluxo */
+.fx-head{margin-bottom:8px;} .fx-head h1{font-size:20px;} .fx-head p{font-size:11.5px;}
+.fx-perchip{padding:5px 11px; font-size:11.5px;}
+.fx-sec{margin-bottom:10px;} .fx-groups{padding:9px 12px;} .fx-gh{margin-bottom:6px;} .fx-gh .t{font-size:12.5px;}
+.fx-chips{grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:6px;}
+.fx-chip{padding:6px 9px; gap:8px; border-radius:10px;} .fx-chip .sw{width:11px; height:11px;} .fx-chip .nm{font-size:12px;} .fx-chip .vl{font-size:11px; margin-top:0;}
+.fx-kpis{gap:8px; margin-bottom:10px; grid-template-columns:repeat(6,minmax(0,1fr));} .fx-kpis .kpi-value{font-size:18px;}
+.fx-ph .tt{font-size:13px;} .fx-ph .ss{font-size:11px;}
+.fx-row2{gap:8px; margin-bottom:10px;}
+.fx-t{font-size:11.5px;} .fx-t th,.fx-t td{padding:5px 8px;} .fx-t th{font-size:9.5px;}
+.fx-tw{max-height:380px;}
+.fx-tbar{padding:8px 10px; gap:7px 9px;}
+.fx-f input,.fx-f select{font-size:11.5px; padding:4px 7px;} .fx-f .rg input{width:84px;} .fx-f.q input{width:170px;}
+@media (max-width:1300px){.fx-kpis{grid-template-columns:repeat(3,minmax(0,1fr));}}
+@media (max-width:980px){.topbar{flex-wrap:wrap;} .topbar .meta{max-width:none;}}
+.topbar .subtitle{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.topbar .meta{flex-wrap:nowrap; max-width:none; white-space:nowrap;}
+@media (max-width:1250px){.topbar .meta{flex-wrap:wrap; white-space:normal; max-width:46%;}}
 </style>
 
+</header>
+
+</section>
+
+</section>
+
+<section class="view" id="view-histograma" role="tabpanel">
+<div class="fam-bar"><div class="fam-bar-in" id="famBar" role="group" aria-label="Filtrar por família"></div></div>
 <div class="wrap">
   <div class="topbar">
     <div class="topbar-left">
@@ -558,13 +959,27 @@ footer{margin-top:30px; padding-top:18px; border-top:1px solid rgba(11,11,11,0.1
   </footer>
 </div>
 
+</section>
+
+</section>
+
+</section>
+
+</section>
+
+</section>
+
+
 <script>
 /* ==================== DATA ==================== */
-const PAYLOAD = {"months":["2026-07","2026-08","2026-09","2026-10","2026-11","2026-12","2027-01","2027-02","2027-03","2027-04","2027-05","2027-06","2027-07","2027-08","2027-09","2027-10","2027-11","2027-12","2028-01","2028-02","2028-03","2028-04","2028-05","2028-06","2028-07","2028-08","2028-09","2028-10","2028-11","2028-12","2029-01","2029-02","2029-03","2029-04","2029-05"],"monthLabels":["jul/26","ago/26","set/26","out/26","nov/26","dez/26","jan/27","fev/27","mar/27","abr/27","mai/27","jun/27","jul/27","ago/27","set/27","out/27","nov/27","dez/27","jan/28","fev/28","mar/28","abr/28","mai/28","jun/28","jul/28","ago/28","set/28","out/28","nov/28","dez/28","jan/29","fev/29","mar/29","abr/29","mai/29"],"frenteColors":{"ADUTORA":"#2a78d6","CANTEIRO":"#eb6834","ENGENHARIA":"#1baf7a","PESQUISA DE VAZAMENTO":"#eda100","REPARO DE VAZAMENTO":"#e87ba4","REPOSIÇÃO":"#008300","REPOSIÇÃO ASFALTICA":"#4a3aa7","SETORIZAÇÃO":"#e34948"},"employees":[{"matricula":36,"frente":"ADUTORA","nome":"ANDERSON DA SILVA CHICHINATO","cargo":"SUPERVISOR DE OBRA II","inicio":"2024-08-05","situacao":"Ativo","periodo_turno":"Diurno","salario":8804.04,"prev_deslig":"2026-12","custo_aprox":15490.256074368,"monthly":[15490.256074368,15490.256074368,21003.746074368,21003.746074368,19892.276074368005,64247.42524770134,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":157127.70561954132,"valor_final_rescisao":64247.42524770134,"verbas_rescisorias":40868.74933333333,"ultimo_mes_folha":"2026-12"},{"matricula":50,"frente":"ADUTORA","nome":"BRUNO VENICIUS RODRIGUES DOS SANTOS","cargo":"LIDER DE FRENTE II","inicio":"2024-09-02","situacao":"Ativo","periodo_turno":"Diurno","salario":4274.74,"prev_deslig":"2026-12","custo_aprox":8054.4952558079995,"monthly":[8054.4952558079995,8054.4952558079995,9227.115255808,9227.115255808,10191.865255808,29674.383460252444,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":74429.46973929244,"valor_final_rescisao":29674.383460252444,"verbas_rescisorias":17926.512844444445,"ultimo_mes_folha":"2026-12"},{"matricula":174,"frente":"REPOSIÇÃO","nome":"DANILO VIEIRA INACIO","cargo":"PEDREIRO","inicio":"2025-05-12","situacao":"Ativo","periodo_turno":"Diurno","salario":2801.99,"prev_deslig":"2026-12","custo_aprox":5582.781299007999,"monthly":[5582.781299007999,5582.781299007999,5692.091299008,5692.091299008,6983.776299007999,17581.210579008002,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":47114.732074048,"valor_final_rescisao":17581.210579008002,"verbas_rescisorias":10294.819360000001,"ultimo_mes_folha":"2026-12"},{"matricula":279,"frente":"CANTEIRO","nome":"DIEGO GONCALVES DA SILVA","cargo":"SERVENTE DE OBRAS","inicio":"2026-05-27","situacao":"Ativo","periodo_turno":"Diurno","salario":2302.75,"prev_deslig":"2029-05","custo_aprox":4350.5534928,"monthly":[4350.5534928,4350.5534928,5589.9234928,5589.9234928,5118.136826133333,5683.078159466666,4350.5534928,4350.5534928,4350.5534928,4350.5534928,4589.833934904,4589.833934904,4589.833934904,4589.833934904,4589.833934904,4589.833934904,5741.208934904,6588.620934904,4589.833934904,4589.833934904,4589.833934904,4589.833934904,4842.27480132372,4842.27480132372,4842.27480132372,4842.27480132372,4842.27480132372,4842.27480132372,5993.64980132372,6841.06180132372,4842.27480132372,4842.27480132372,4842.27480132372,4842.27480132372,16482.4966868646],"total":184052.50844959723,"valor_final_rescisao":14430.35392168889,"verbas_rescisorias":7427.03242888889,"ultimo_mes_folha":"2029-05"},{"matricula":241,"frente":"PESQUISA DE VAZAMENTO","nome":"EMERSON GABRIEL DOS SANTOS SILVA","cargo":"SERVENTE DE OBRAS","inicio":"2025-07-17","situacao":"Ativo","periodo_turno":"Diurno","salario":2226,"prev_deslig":"2026-12","custo_aprox":4566.1486592,"monthly":[4566.1486592,4566.1486592,4566.1486592,4566.1486592,5679.1486592,11833.8568592,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":35777.6001552,"valor_final_rescisao":11833.8568592,"verbas_rescisorias":6056.7642,"ultimo_mes_folha":"2026-12"},{"matricula":139,"frente":"REPARO DE VAZAMENTO","nome":"FELIPE DERLIS GONCALVES HERMENEGILDO","cargo":"ENCANADOR","inicio":"2025-03-20","situacao":"Ativo","periodo_turno":"Diurno","salario":2801.99,"prev_deslig":"2029-05","custo_aprox":5664.451299007999,"monthly":[5664.451299007999,5664.451299007999,6152.641299007999,6152.641299007999,7065.446299007999,8096.578619007999,5664.451299007999,5664.451299007999,5664.451299007999,5664.451299007999,5975.996120453439,5975.996120453439,5975.996120453439,5975.996120453439,5975.996120453439,5975.996120453439,7376.991120453439,8408.123440453439,5975.996120453439,5975.996120453439,5975.996120453439,5975.996120453439,6304.675907078378,6304.675907078378,6304.675907078378,6304.675907078378,6304.675907078378,6304.675907078378,7705.670907078378,8736.803227078377,6304.675907078378,6304.675907078378,6304.675907078378,6304.675907078378,23660.41980705528],"total":240148.744087517,"valor_final_rescisao":20814.780054563555,"verbas_rescisorias":10667.144755555553,"ultimo_mes_folha":"2029-05"},{"matricula":265,"frente":"CANTEIRO","nome":"GABRIEL HENRIQUE DE OLIVEIRA SANTOS","cargo":"APRENDIZ","inicio":"2026-02-10","situacao":"Ativo","periodo_turno":"Diurno","salario":884.18,"prev_deslig":"2027-02","custo_aprox":1344.95,"monthly":[1344.95,1344.95,1344.95,1344.95,1750.1991666666668,2048.4625533333333,1344.95,1684.47512,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":12207.886840000001,"valor_final_rescisao":1684.47512,"verbas_rescisorias":0,"ultimo_mes_folha":"2027-02"},{"matricula":9,"frente":"CANTEIRO","nome":"GABRIELE MARQUES MENEZES SILVA","cargo":"ANALISTA ADMINISTRATIVO I","inicio":"2024-07-04","situacao":"Ativo","periodo_turno":"Diurno","salario":4038.41,"prev_deslig":"2029-05","custo_aprox":7586.686404671999,"monthly":[7586.686404671999,7586.686404671999,7714.536404672,7714.536404672,9605.891404671998,11092.026284672,7586.686404671999,7586.686404671999,7586.686404671999,7586.686404671999,8003.954156928959,8003.954156928959,8003.954156928959,8003.954156928959,8003.954156928959,8003.954156928959,10023.15915692896,11509.294036928957,8003.954156928959,8003.954156928959,8003.954156928959,8003.954156928959,8444.171635560051,8444.171635560051,8444.171635560051,8444.171635560051,8444.171635560051,8444.171635560051,10463.376635560051,11949.51151556005,8444.171635560051,8444.171635560051,8444.171635560051,8444.171635560051,34858.861768575734],"total":324932.5699651638,"valor_final_rescisao":30798.481464671997,"verbas_rescisorias":15716.506099999999,"ultimo_mes_folha":"2029-05"},{"matricula":60,"frente":"REPOSIÇÃO ASFALTICA","nome":"GIVALDO MOREIRA DOS SANTOS","cargo":"RASTELEIRO","inicio":"2024-09-02","situacao":"Ativo","periodo_turno":"Diurno","salario":2801.99,"prev_deslig":"2026-12","custo_aprox":5729.601299007999,"monthly":[5729.601299007999,5729.601299007999,6043.231299007999,6043.231299007999,7130.596299007999,23218.766534563554,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":53895.02802960355,"valor_final_rescisao":23218.766534563554,"verbas_rescisorias":15068.245875555554,"ultimo_mes_folha":"2026-12"},{"matricula":86,"frente":"REPOSIÇÃO","nome":"HERALDO PINHEIRO FERREIRA","cargo":"LIDER DE FRENTE","inicio":"2025-01-13","situacao":"Ativo","periodo_turno":"Diurno","salario":3232.31,"prev_deslig":"2029-05","custo_aprox":6784.128015552,"monthly":[6784.128015552,6784.128015552,6921.448015552,6921.448015552,8400.283015552,9589.773095552,6784.128015552,6784.128015552,6784.128015552,6784.128015552,7157.255056407359,7157.255056407359,7157.255056407359,7157.255056407359,7157.255056407359,7157.255056407359,8773.41005640736,9962.90013640736,7157.255056407359,7157.255056407359,7157.255056407359,7157.255056407359,7550.904084509764,7550.904084509764,7550.904084509764,7550.904084509764,7550.904084509764,7550.904084509764,9167.059084509765,10356.549164509765,7550.904084509764,7550.904084509764,7550.904084509764,7550.904084509764,31174.418102084117],"total":289053.64818860963,"valor_final_rescisao":27346.665808885333,"verbas_rescisorias":15183.973953333334,"ultimo_mes_folha":"2029-05"},{"matricula":212,"frente":"SETORIZAÇÃO","nome":"IZAQUE RAMOS BATISTA","cargo":"AUXILIAR DE SANEAMENTO","inicio":"2025-06-16","situacao":"Ativo","periodo_turno":"Diurno","salario":2302.75,"prev_deslig":"2029-05","custo_aprox":4971.2234928,"monthly":[4971.2234928,4971.2234928,5994.3434928,5994.3434928,6122.5984928,6970.0104928,4971.2234928,4971.2234928,4971.2234928,4971.2234928,5244.640784904,5244.640784904,5244.640784904,5244.640784904,5244.640784904,5244.640784904,6396.015784904,7243.427784904,5244.640784904,5244.640784904,5244.640784904,5244.640784904,5533.096028073719,5533.096028073719,5533.096028073719,5533.096028073719,5533.096028073719,5533.096028073719,6684.471028073719,7531.883028073719,5533.096028073719,5533.096028073719,5533.096028073719,5533.096028073719,27157.284959988167],"total":217699.08764372076,"valor_final_rescisao":23641.426692799996,"verbas_rescisorias":15206.867199999997,"ultimo_mes_folha":"2029-05"},{"matricula":272,"frente":"REPARO DE VAZAMENTO","nome":"JOAO VICTOR MENDES DOS SANTOS","cargo":"SERVENTE DE OBRAS","inicio":"2026-05-07","situacao":"Ativo","periodo_turno":"Diurno","salario":2189.97,"prev_deslig":"2026-12","custo_aprox":4533.777829823999,"monthly":[4533.777829823999,4533.777829823999,5431.977829823999,5431.977829823999,5263.767829823999,12810.196923157331,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":38005.47607227733,"valor_final_rescisao":12810.196923157331,"verbas_rescisorias":7785.865813333332,"ultimo_mes_folha":"2026-12"},{"matricula":242,"frente":"SETORIZAÇÃO","nome":"JULIO CESAR LIMA DE CARVALHO","cargo":"AUXILIAR DE SANEAMENTO","inicio":"2025-07-17","situacao":"Ativo","periodo_turno":"Diurno","salario":2302.75,"prev_deslig":"2029-05","custo_aprox":4971.2234928,"monthly":[4971.2234928,4971.2234928,6155.6734928,6155.6734928,6122.5984928,6970.0104928,4971.2234928,4971.2234928,4971.2234928,4971.2234928,5244.640784904,5244.640784904,5244.640784904,5244.640784904,5244.640784904,5244.640784904,6396.015784904,7243.427784904,5244.640784904,5244.640784904,5244.640784904,5244.640784904,5533.096028073719,5533.096028073719,5533.096028073719,5533.096028073719,5533.096028073719,5533.096028073719,6684.471028073719,7531.883028073719,5533.096028073719,5533.096028073719,5533.096028073719,5533.096028073719,27121.401989843882],"total":217985.86467357646,"valor_final_rescisao":23599.9339728,"verbas_rescisorias":15239.06248,"ultimo_mes_folha":"2029-05"},{"matricula":281,"frente":"ADUTORA","nome":"LUCAS DOS SANTOS PRADO","cargo":"MOTORISTA DE CAMINHAO I","inicio":"2026-06-09","situacao":"Ativo","periodo_turno":"Diurno","salario":3013.53,"prev_deslig":"2026-12","custo_aprox":5756.924797376,"monthly":[5756.924797376,5756.924797376,6778.234797376001,6778.234797376001,6635.871047376,18289.753357376,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":49995.943594256,"valor_final_rescisao":18289.753357376,"verbas_rescisorias":11954.2308,"ultimo_mes_folha":"2026-12"},{"matricula":73,"frente":"ADUTORA","nome":"LUIZ CLAUDIO BELMIRO","cargo":"LIDER DE FRENTE II","inicio":"2024-10-04","situacao":"Ativo","periodo_turno":"Diurno","salario":4274.74,"prev_deslig":"2029-05","custo_aprox":8127.9952558079995,"monthly":[8127.9952558079995,8127.9952558079995,10539.815255808,10539.815255808,10265.365255808,11838.469575808,8127.9952558079995,8127.9952558079995,8127.9952558079995,8127.9952558079995,8575.034994877438,8575.034994877438,8575.034994877438,8575.034994877438,8575.034994877438,8575.034994877438,10712.404994877437,12285.509314877438,8575.034994877438,8575.034994877438,8575.034994877438,8575.034994877438,9046.661919595697,9046.661919595697,9046.661919595697,9046.661919595697,9046.661919595697,9046.661919595697,11184.031919595698,12757.136239595697,9046.661919595697,9046.661919595697,9046.661919595697,9046.661919595697,45138.35296848513],"total":360245.8414602427,"valor_final_rescisao":39556.829055808004,"verbas_rescisorias":23905.291400000002,"ultimo_mes_folha":"2029-05"},{"matricula":269,"frente":"ADUTORA","nome":"MARCELO RODRIGUES DUARTE","cargo":"SERVENTE DE OBRAS","inicio":"2026-04-13","situacao":"Ativo","periodo_turno":"Diurno","salario":2302.75,"prev_deslig":"2029-05","custo_aprox":4595.5534928,"monthly":[4595.5534928,4595.5534928,6022.2334928,6022.2334928,5459.0847428,6094.6437428,4595.5534928,4595.5534928,4595.5534928,4595.5534928,4848.308934903999,4848.308934903999,4848.308934903999,4848.308934903999,4848.308934903999,4848.308934903999,5999.683934903999,6847.0959349039995,4848.308934903999,4848.308934903999,4848.308934903999,4848.308934903999,5114.965926323719,5114.965926323719,5114.965926323719,5114.965926323719,5114.965926323719,5114.965926323719,6266.340926323719,7113.752926323719,5114.965926323719,5114.965926323719,5114.965926323719,5114.965926323719,17084.65351027461],"total":194115.79227300728,"valor_final_rescisao":14954.093192799999,"verbas_rescisorias":7632.083699999999,"ultimo_mes_folha":"2029-05"},{"matricula":201,"frente":"SETORIZAÇÃO","nome":"MATEUS XAVIER MORENO DA SILVA","cargo":"SERVENTE DE OBRAS","inicio":"2025-05-26","situacao":"Sem folha","periodo_turno":"Diurno","salario":1970.97,"prev_deslig":"2029-05","custo_aprox":4465.075145024,"monthly":[4465.075145024,4465.075145024,4465.075145024,4465.075145024,5450.560145024,6175.877105024,4465.075145024,4465.075145024,4465.075145024,4465.075145024,4710.65427800032,4710.65427800032,4710.65427800032,4710.65427800032,4710.65427800032,4710.65427800032,5696.13927800032,6421.45623800032,4710.65427800032,4710.65427800032,4710.65427800032,4710.65427800032,4969.740263290338,4969.740263290338,4969.740263290338,4969.740263290338,4969.740263290338,4969.740263290338,5955.225263290337,6680.5422232903375,4969.740263290338,4969.740263290338,4969.740263290338,4969.740263290338,19842.998613643475],"total":188747.34543937133,"valor_final_rescisao":17347.79502280178,"verbas_rescisorias":9855.309957777778,"ultimo_mes_folha":"2029-05"},{"matricula":39,"frente":"SETORIZAÇÃO","nome":"MIGUEL MAXIMO DIAS JUNIOR","cargo":"AUXILIAR DE SANEAMENTO","inicio":"2024-08-05","situacao":"Ativo","periodo_turno":"Diurno","salario":2302.75,"prev_deslig":"2029-05","custo_aprox":5156.3534928,"monthly":[5156.3534928,5156.3534928,5451.7334928,5451.7334928,6307.7284928,7155.1404928,5156.3534928,5156.3534928,5156.3534928,5156.3534928,5439.952934903999,5439.952934903999,5439.952934903999,5439.952934903999,5439.952934903999,5439.952934903999,6591.327934903999,7438.739934904,5439.952934903999,5439.952934903999,5439.952934903999,5439.952934903999,5739.1503463237195,5739.1503463237195,5739.1503463237195,5739.1503463237195,5739.1503463237195,5739.1503463237195,6890.5253463237195,7737.93734632372,5739.1503463237195,5739.1503463237195,5739.1503463237195,5739.1503463237195,23907.761617069304],"total":219661.781919802,"valor_final_rescisao":20983.431135022223,"verbas_rescisorias":11626.861642222224,"ultimo_mes_folha":"2029-05"},{"matricula":189,"frente":"REPOSIÇÃO ASFALTICA","nome":"NILSON GOMES ALVES","cargo":"MOTORISTA DE CAMINHAO","inicio":"2025-05-19","situacao":"Ativo","periodo_turno":"Diurno","salario":2801.99,"prev_deslig":"2029-05","custo_aprox":6136.731299007999,"monthly":[6136.731299007999,6136.731299007999,6440.061299007999,6440.061299007999,7537.726299007999,8568.858619007999,6136.731299007999,6136.731299007999,6136.731299007999,6136.731299007999,6474.251520453438,6474.251520453438,6474.251520453438,6474.251520453438,6474.251520453438,6474.251520453438,7875.246520453438,8906.378840453439,6474.251520453438,6474.251520453438,6474.251520453438,6474.251520453438,6830.335354078377,6830.335354078377,6830.335354078377,6830.335354078377,6830.335354078377,6830.335354078377,8231.330354078378,9262.462674078377,6830.335354078377,6830.335354078377,6830.335354078377,6830.335354078377,31326.31817542824],"total":264454.7006198901,"valor_final_rescisao":27316.55412345245,"verbas_rescisorias":16875.96618444445,"ultimo_mes_folha":"2029-05"},{"matricula":100,"frente":"ADUTORA","nome":"NILTON JESUS CRUZ","cargo":"OPERADOR DE RETROESCAVADEIRA","inicio":"2025-02-03","situacao":"Ativo","periodo_turno":"Diurno","salario":3761.27,"prev_deslig":"2026-12","custo_aprox":6362.606494784,"monthly":[6362.606494784,6362.606494784,6379.506494783999,6379.506494783999,8243.241494783999,19911.614374784,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":53639.081848704,"valor_final_rescisao":19911.614374784,"verbas_rescisorias":10901.073800000002,"ultimo_mes_folha":"2026-12"},{"matricula":110,"frente":"ADUTORA","nome":"RICARDO ANDRE PONTES","cargo":"OPER. ESCAVADEIRA HIDRAULICA","inicio":"2025-02-13","situacao":"Ativo","periodo_turno":"Diurno","salario":4658.99,"prev_deslig":"2026-12","custo_aprox":8698.676393407999,"monthly":[8698.676393407999,8698.676393407999,9984.316393407998,9984.316393407998,11028.171393408,35342.568953407994,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":83736.72592044799,"valor_final_rescisao":35342.568953407994,"verbas_rescisorias":23363.9636,"ultimo_mes_folha":"2026-12"},{"matricula":277,"frente":"REPOSIÇÃO","nome":"ROBSON CLAYTON DE OLIVEIRA","cargo":"PEDREIRO","inicio":"2026-05-14","situacao":"Ativo","periodo_turno":"Diurno","salario":2801.99,"prev_deslig":"2029-05","custo_aprox":5386.781299007999,"monthly":[5386.781299007999,5386.781299007999,6089.021299007999,6089.021299007999,6320.777965674666,7008.199512341333,5386.781299007999,5386.781299007999,5386.781299007999,5386.781299007999,5683.054270453439,5683.054270453439,5683.054270453439,5683.054270453439,5683.054270453439,5683.054270453439,7084.049270453439,8115.181590453439,5683.054270453439,5683.054270453439,5683.054270453439,5683.054270453439,5995.622255328378,5995.622255328378,5995.622255328378,5995.622255328378,5995.622255328378,5995.622255328378,7396.617255328378,8427.749575328377,5995.622255328378,5995.622255328378,5995.622255328378,5995.622255328378,23795.430411671143],"total":229433.50123113295,"valor_final_rescisao":20743.488821230225,"verbas_rescisorias":12128.815042222222,"ultimo_mes_folha":"2029-05"},{"matricula":116,"frente":"ADUTORA","nome":"SANDRO PATRICIO DA SILVA","cargo":"ENCANADOR","inicio":"2025-02-17","situacao":"Ativo","periodo_turno":"Diurno","salario":2801.99,"prev_deslig":"2026-12","custo_aprox":6060.321299007999,"monthly":[6060.321299007999,6060.321299007999,7219.271299007999,7219.271299007999,7461.316299007999,21480.260459007997,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":55500.761954047994,"valor_final_rescisao":21480.260459007997,"verbas_rescisorias":13447.3382,"ultimo_mes_folha":"2026-12"},{"matricula":167,"frente":"CANTEIRO","nome":"SARAH NASCIMENTO SILVA","cargo":"ANALISTA ADMINISTRATIVO","inicio":"2025-05-08","situacao":"Ativo","periodo_turno":"Diurno","salario":2926.39,"prev_deslig":"2029-05","custo_aprox":5818.713335488,"monthly":[5818.713335488,5818.713335488,5825.293335488,5825.293335488,7281.9083354879995,8358.819855488,5818.713335488,5818.713335488,5818.713335488,5818.713335488,6138.74256893984,6138.74256893984,6138.74256893984,6138.74256893984,6138.74256893984,6138.74256893984,7601.937568939839,8678.84908893984,6138.74256893984,6138.74256893984,6138.74256893984,6138.74256893984,6476.37341023153,6476.37341023153,6476.37341023153,6476.37341023153,6476.37341023153,6476.37341023153,7939.56841023153,9016.47993023153,6476.37341023153,6476.37341023153,6476.37341023153,6476.37341023153,26605.929975167575],"total":248197.5196401039,"valor_final_rescisao":23324.960455488002,"verbas_rescisorias":13011.312080000003,"ultimo_mes_folha":"2029-05"},{"matricula":5,"frente":"ENGENHARIA","nome":"TAINA VIEIRA LIMA SANTOS","cargo":"ANALISTA DE ENGENHARIA JR","inicio":"2024-07-01","situacao":"Ativo","periodo_turno":"Diurno","salario":4249.11,"prev_deslig":"2029-05","custo_aprox":7955.457394111999,"monthly":[7955.457394111999,7955.457394111999,9707.317394111999,9707.317394111999,10080.012394111998,11643.684874111997,7955.457394111999,7955.457394111999,7955.457394111999,7955.457394111999,8393.007550788157,8393.007550788157,8393.007550788157,8393.007550788157,8393.007550788157,8393.007550788157,10517.562550788158,12081.235030788157,8393.007550788157,8393.007550788157,8393.007550788157,8393.007550788157,8854.622966081506,8854.622966081506,8854.622966081506,8854.622966081506,8854.622966081506,8854.622966081506,10979.177966081506,12542.850446081506,8854.622966081506,8854.622966081506,8854.622966081506,8854.622966081506,35632.43458012176],"total":343100.6421636777,"valor_final_rescisao":31515.294483000893,"verbas_rescisorias":15673.488928888892,"ultimo_mes_folha":"2029-05"},{"matricula":58,"frente":"CANTEIRO","nome":"THAIS MARIA CRUZ DE ARAUJO","cargo":"AUXILIAR DE LIMPEZA","inicio":"2024-09-02","situacao":"Ativo","periodo_turno":"Diurno","salario":2302.75,"prev_deslig":"2029-05","custo_aprox":4767.0534928,"monthly":[4767.0534928,4767.0534928,4792.453492799999,4792.453492799999,5918.4284928,6765.8404928,4767.0534928,4767.0534928,4767.0534928,4767.0534928,5029.241434903999,5029.241434903999,5029.241434903999,5029.241434903999,5029.241434903999,5029.241434903999,6180.616434903999,7028.028434903999,5029.241434903999,5029.241434903999,5029.241434903999,5029.241434903999,5305.849713823719,5305.849713823719,5305.849713823719,5305.849713823719,5305.849713823719,5305.849713823719,6457.224713823719,7304.636713823719,5305.849713823719,5305.849713823719,5305.849713823719,5305.849713823719,21118.557235856824],"total":202311.4719485895,"valor_final_rescisao":18597.172279466668,"verbas_rescisorias":9703.590786666668,"ultimo_mes_folha":"2029-05"},{"matricula":29,"frente":"CANTEIRO","nome":"VICTOR FERNANDES CASSIMIRO DOS SANTOS","cargo":"ANALISTA DE SUPRIMENTOS PLENO","inicio":"2024-07-15","situacao":"Ativo","periodo_turno":"Diurno","salario":3901.07,"prev_deslig":"2029-05","custo_aprox":7378.611194944,"monthly":[7378.611194944,7378.611194944,8788.971194944,8788.971194944,9329.146194944,10764.739954943998,7378.611194944,7378.611194944,7378.611194944,7378.611194944,7784.43481066592,7784.43481066592,7784.43481066592,7784.43481066592,7784.43481066592,7784.43481066592,9734.96981066592,11170.56357066592,7784.43481066592,7784.43481066592,7784.43481066592,7784.43481066592,8212.578725252546,8212.578725252546,8212.578725252546,8212.578725252546,8212.578725252546,8212.578725252546,10163.113725252546,11598.707485252546,8212.578725252546,8212.578725252546,8212.578725252546,8212.578725252546,35142.59535403621],"total":319723.5810144977,"valor_final_rescisao":31002.288734944002,"verbas_rescisorias":16383.291620000002,"ultimo_mes_folha":"2029-05"},{"matricula":164,"frente":"CANTEIRO","nome":"VIVIANE DOS SANTOS SILVA","cargo":"TECNICO EM SEG. DO TRABALHO","inicio":"2025-05-08","situacao":"Ativo","periodo_turno":"Diurno","salario":4877.12,"prev_deslig":"2029-05","custo_aprox":8973.417551104,"monthly":[8973.417551104,8973.417551104,9213.497551104,9213.497551104,11411.977551103999,13206.757711104,8973.417551104,8973.417551104,8973.417551104,8973.417551104,9466.955516414719,9466.955516414719,9466.955516414719,9466.955516414719,9466.955516414719,9466.955516414719,11905.515516414718,13700.295676414718,9466.955516414719,9466.955516414719,9466.955516414719,9466.955516414719,9987.638069817529,9987.638069817529,9987.638069817529,9987.638069817529,9987.638069817529,9987.638069817529,12426.198069817528,14220.978229817529,9987.638069817529,9987.638069817529,9987.638069817529,9987.638069817529,37124.25075189131],"total":380809.4097777181,"valor_final_rescisao":32727.119288881775,"verbas_rescisorias":16262.445417777777,"ultimo_mes_folha":"2029-05"},{"matricula":42,"frente":"ADUTORA","nome":"WESLEY FELIPE DA SILVA","cargo":"LIDER DE FRENTE II","inicio":"2024-08-05","situacao":"Ativo","periodo_turno":"Diurno","salario":4132.25,"prev_deslig":"2026-12","custo_aprox":8425.395259199999,"monthly":[8425.395259199999,8425.395259199999,10189.4252592,10189.4252592,10491.520259199999,34341.5536592,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":82062.71495519999,"valor_final_rescisao":34341.5536592,"verbas_rescisorias":22213.6624,"ultimo_mes_folha":"2026-12"},{"matricula":243,"frente":"SETORIZAÇÃO","nome":"WILLIAN VERAS FERREIRA","cargo":"ASSISTENTE DE SANEAMENTO","inicio":"2025-07-17","situacao":"Ativo","periodo_turno":"Diurno","salario":2801.99,"prev_deslig":"2029-05","custo_aprox":5829.111299007999,"monthly":[5829.111299007999,5829.111299007999,6187.951299007999,6187.951299007999,7230.106299007999,8261.238619008,5829.111299007999,5829.111299007999,5829.111299007999,5829.111299007999,6149.712420453438,6149.712420453438,6149.712420453438,6149.712420453438,6149.712420453438,6149.712420453438,7550.707420453438,8581.839740453437,6149.712420453438,6149.712420453438,6149.712420453438,6149.712420453438,6487.946603578378,6487.946603578378,6487.946603578378,6487.946603578378,6487.946603578378,6487.946603578378,7888.941603578378,8920.073923578377,6487.946603578378,6487.946603578378,6487.946603578378,6487.946603578378,24589.081543508713],"total":246749.14978197037,"valor_final_rescisao":21552.421619007997,"verbas_rescisorias":11598.78104,"ultimo_mes_folha":"2029-05"},{"matricula":264,"frente":"CANTEIRO","nome":"YASMIN VITORIA PEREIRA CAMARGO","cargo":"APRENDIZ","inicio":"2026-02-10","situacao":"Ativo","periodo_turno":"Diurno","salario":884.18,"prev_deslig":"2027-02","custo_aprox":1344.95,"monthly":[1344.95,1344.95,1344.95,1344.95,1750.1991666666668,2048.4625533333333,1344.95,1684.47512,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"total":12207.886840000001,"valor_final_rescisao":1684.47512,"verbas_rescisorias":0,"ultimo_mes_folha":"2027-02"}]};
+const PAYLOAD = {"months": ["2026-07", "2026-08", "2026-09", "2026-10", "2026-11", "2026-12", "2027-01", "2027-02", "2027-03", "2027-04", "2027-05", "2027-06", "2027-07", "2027-08", "2027-09", "2027-10", "2027-11", "2027-12", "2028-01", "2028-02", "2028-03", "2028-04", "2028-05", "2028-06", "2028-07", "2028-08", "2028-09", "2028-10", "2028-11", "2028-12", "2029-01", "2029-02", "2029-03", "2029-04", "2029-05"], "monthLabels": ["jul/26", "ago/26", "set/26", "out/26", "nov/26", "dez/26", "jan/27", "fev/27", "mar/27", "abr/27", "mai/27", "jun/27", "jul/27", "ago/27", "set/27", "out/27", "nov/27", "dez/27", "jan/28", "fev/28", "mar/28", "abr/28", "mai/28", "jun/28", "jul/28", "ago/28", "set/28", "out/28", "nov/28", "dez/28", "jan/29", "fev/29", "mar/29", "abr/29", "mai/29"], "frenteColors": {"ADUTORA": "#2a78d6", "CANTEIRO": "#eb6834", "ENGENHARIA": "#1baf7a", "PESQUISA DE VAZAMENTO": "#eda100", "REPARO DE VAZAMENTO": "#e87ba4", "REPOSIÇÃO": "#008300", "REPOSIÇÃO ASFALTICA": "#4a3aa7", "SETORIZAÇÃO": "#e34948"}, "employees": [{"matricula": 36, "frente": "ADUTORA", "nome": "ANDERSON DA SILVA CHICHINATO", "cargo": "SUPERVISOR DE OBRA II", "inicio": "2024-08-05", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 8804.04, "prev_deslig": "2026-12", "custo_aprox": 15490.256074368, "monthly": [15490.256074368, 15490.256074368, 21003.746074368, 21003.746074368, 19892.276074368005, 64247.42524770134, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "total": 157127.70561954132, "valor_final_rescisao": 64247.42524770134, "verbas_rescisorias": 40868.74933333333, "ultimo_mes_folha": "2026-12"}, {"matricula": 50, "frente": "ADUTORA", "nome": "BRUNO VENICIUS RODRIGUES DOS SANTOS", "cargo": "LIDER DE FRENTE II", "inicio": "2024-09-02", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 4274.74, "prev_deslig": "2026-12", "custo_aprox": 8054.4952558079995, "monthly": [8054.4952558079995, 8054.4952558079995, 9227.115255808, 9227.115255808, 10191.865255808, 29674.383460252444, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "total": 74429.46973929244, "valor_final_rescisao": 29674.383460252444, "verbas_rescisorias": 17926.512844444445, "ultimo_mes_folha": "2026-12"}, {"matricula": 174, "frente": "REPOSIÇÃO", "nome": "DANILO VIEIRA INACIO", "cargo": "PEDREIRO", "inicio": "2025-05-12", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 2801.99, "prev_deslig": "2026-12", "custo_aprox": 5582.781299007999, "monthly": [5582.781299007999, 5582.781299007999, 5692.091299008, 5692.091299008, 6983.776299007999, 17581.210579008002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "total": 47114.732074048, "valor_final_rescisao": 17581.210579008002, "verbas_rescisorias": 10294.819360000001, "ultimo_mes_folha": "2026-12"}, {"matricula": 279, "frente": "CANTEIRO", "nome": "DIEGO GONCALVES DA SILVA", "cargo": "SERVENTE DE OBRAS", "inicio": "2026-05-27", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 2302.75, "prev_deslig": "2029-05", "custo_aprox": 4350.5534928, "monthly": [4350.5534928, 4350.5534928, 5589.9234928, 5589.9234928, 5118.136826133333, 5683.078159466666, 4350.5534928, 4350.5534928, 4350.5534928, 4350.5534928, 4589.833934904, 4589.833934904, 4589.833934904, 4589.833934904, 4589.833934904, 4589.833934904, 5741.208934904, 6588.620934904, 4589.833934904, 4589.833934904, 4589.833934904, 4589.833934904, 4842.27480132372, 4842.27480132372, 4842.27480132372, 4842.27480132372, 4842.27480132372, 4842.27480132372, 5993.64980132372, 6841.06180132372, 4842.27480132372, 4842.27480132372, 4842.27480132372, 4842.27480132372, 16482.4966868646], "total": 184052.50844959723, "valor_final_rescisao": 14430.35392168889, "verbas_rescisorias": 7427.03242888889, "ultimo_mes_folha": "2029-05"}, {"matricula": 241, "frente": "PESQUISA DE VAZAMENTO", "nome": "EMERSON GABRIEL DOS SANTOS SILVA", "cargo": "SERVENTE DE OBRAS", "inicio": "2025-07-17", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 2302.75, "prev_deslig": "2026-12", "custo_aprox": 4691.5351342, "monthly": [4691.54, 4691.54, 4691.54, 4691.54, 5835.104174039583, 12158.82726405544, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "total": 36760.09143809503, "valor_final_rescisao": 12158.82726405544, "verbas_rescisorias": 6056.7642, "ultimo_mes_folha": "2026-12"}, {"matricula": 139, "frente": "REPARO DE VAZAMENTO", "nome": "FELIPE DERLIS GONCALVES HERMENEGILDO", "cargo": "ENCANADOR", "inicio": "2025-03-20", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 2801.99, "prev_deslig": "2029-05", "custo_aprox": 5664.451299007999, "monthly": [5664.451299007999, 5664.451299007999, 6152.641299007999, 6152.641299007999, 7065.446299007999, 8096.578619007999, 5664.451299007999, 5664.451299007999, 5664.451299007999, 5664.451299007999, 5975.996120453439, 5975.996120453439, 5975.996120453439, 5975.996120453439, 5975.996120453439, 5975.996120453439, 7376.991120453439, 8408.123440453439, 5975.996120453439, 5975.996120453439, 5975.996120453439, 5975.996120453439, 6304.675907078378, 6304.675907078378, 6304.675907078378, 6304.675907078378, 6304.675907078378, 6304.675907078378, 7705.670907078378, 8736.803227078377, 6304.675907078378, 6304.675907078378, 6304.675907078378, 6304.675907078378, 23660.41980705528], "total": 240148.744087517, "valor_final_rescisao": 20814.780054563555, "verbas_rescisorias": 10667.144755555553, "ultimo_mes_folha": "2029-05"}, {"matricula": 265, "frente": "CANTEIRO", "nome": "GABRIEL HENRIQUE DE OLIVEIRA SANTOS", "cargo": "APRENDIZ", "inicio": "2026-02-10", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 884.18, "prev_deslig": "2027-02", "custo_aprox": 1344.95, "monthly": [1344.95, 1344.95, 1344.95, 1344.95, 1750.1991666666668, 2048.4625533333333, 1344.95, 1684.47512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "total": 12207.886840000001, "valor_final_rescisao": 1684.47512, "verbas_rescisorias": 0, "ultimo_mes_folha": "2027-02"}, {"matricula": 9, "frente": "CANTEIRO", "nome": "GABRIELE MARQUES MENEZES SILVA", "cargo": "ANALISTA ADMINISTRATIVO I", "inicio": "2024-07-04", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 4038.41, "prev_deslig": "2029-05", "custo_aprox": 7586.686404671999, "monthly": [7586.686404671999, 7586.686404671999, 7714.536404672, 7714.536404672, 9605.891404671998, 11092.026284672, 7586.686404671999, 7586.686404671999, 7586.686404671999, 7586.686404671999, 8003.954156928959, 8003.954156928959, 8003.954156928959, 8003.954156928959, 8003.954156928959, 8003.954156928959, 10023.15915692896, 11509.294036928957, 8003.954156928959, 8003.954156928959, 8003.954156928959, 8003.954156928959, 8444.171635560051, 8444.171635560051, 8444.171635560051, 8444.171635560051, 8444.171635560051, 8444.171635560051, 10463.376635560051, 11949.51151556005, 8444.171635560051, 8444.171635560051, 8444.171635560051, 8444.171635560051, 34858.861768575734], "total": 324932.5699651638, "valor_final_rescisao": 30798.481464671997, "verbas_rescisorias": 15716.506099999999, "ultimo_mes_folha": "2029-05"}, {"matricula": 60, "frente": "REPOSIÇÃO ASFALTICA", "nome": "GIVALDO MOREIRA DOS SANTOS", "cargo": "RASTELEIRO", "inicio": "2024-09-02", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 2801.99, "prev_deslig": "2026-12", "custo_aprox": 5729.601299007999, "monthly": [5729.601299007999, 5729.601299007999, 6043.231299007999, 6043.231299007999, 7130.596299007999, 23218.766534563554, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "total": 53895.02802960355, "valor_final_rescisao": 23218.766534563554, "verbas_rescisorias": 15068.245875555554, "ultimo_mes_folha": "2026-12"}, {"matricula": 86, "frente": "REPOSIÇÃO", "nome": "HERALDO PINHEIRO FERREIRA", "cargo": "LIDER DE FRENTE", "inicio": "2025-01-13", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 3232.31, "prev_deslig": "2029-05", "custo_aprox": 6784.128015552, "monthly": [6784.128015552, 6784.128015552, 6921.448015552, 6921.448015552, 8400.283015552, 9589.773095552, 6784.128015552, 6784.128015552, 6784.128015552, 6784.128015552, 7157.255056407359, 7157.255056407359, 7157.255056407359, 7157.255056407359, 7157.255056407359, 7157.255056407359, 8773.41005640736, 9962.90013640736, 7157.255056407359, 7157.255056407359, 7157.255056407359, 7157.255056407359, 7550.904084509764, 7550.904084509764, 7550.904084509764, 7550.904084509764, 7550.904084509764, 7550.904084509764, 9167.059084509765, 10356.549164509765, 7550.904084509764, 7550.904084509764, 7550.904084509764, 7550.904084509764, 31174.418102084117], "total": 289053.64818860963, "valor_final_rescisao": 27346.665808885333, "verbas_rescisorias": 15183.973953333334, "ultimo_mes_folha": "2029-05"}, {"matricula": 212, "frente": "SETORIZAÇÃO", "nome": "IZAQUE RAMOS BATISTA", "cargo": "AUXILIAR DE SANEAMENTO", "inicio": "2025-06-16", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 2302.75, "prev_deslig": "2029-05", "custo_aprox": 4971.2234928, "monthly": [4971.2234928, 4971.2234928, 5994.3434928, 5994.3434928, 6122.5984928, 6970.0104928, 4971.2234928, 4971.2234928, 4971.2234928, 4971.2234928, 5244.640784904, 5244.640784904, 5244.640784904, 5244.640784904, 5244.640784904, 5244.640784904, 6396.015784904, 7243.427784904, 5244.640784904, 5244.640784904, 5244.640784904, 5244.640784904, 5533.096028073719, 5533.096028073719, 5533.096028073719, 5533.096028073719, 5533.096028073719, 5533.096028073719, 6684.471028073719, 7531.883028073719, 5533.096028073719, 5533.096028073719, 5533.096028073719, 5533.096028073719, 27157.284959988167], "total": 217699.08764372076, "valor_final_rescisao": 23641.426692799996, "verbas_rescisorias": 15206.867199999997, "ultimo_mes_folha": "2029-05"}, {"matricula": 272, "frente": "REPARO DE VAZAMENTO", "nome": "JOAO VICTOR MENDES DOS SANTOS", "cargo": "SERVENTE DE OBRAS", "inicio": "2026-05-07", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 2302.75, "prev_deslig": "2026-12", "custo_aprox": 4718.026515823999, "monthly": [4718.03, 4718.03, 5652.732736892714, 5652.732736892714, 5477.68670330028, 13330.801741493851, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "total": 39550.013918579556, "valor_final_rescisao": 13330.801741493851, "verbas_rescisorias": 7785.865813333332, "ultimo_mes_folha": "2026-12"}, {"matricula": 242, "frente": "SETORIZAÇÃO", "nome": "JULIO CESAR LIMA DE CARVALHO", "cargo": "AUXILIAR DE SANEAMENTO", "inicio": "2025-07-17", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 2302.75, "prev_deslig": "2029-05", "custo_aprox": 4971.2234928, "monthly": [4971.2234928, 4971.2234928, 6155.6734928, 6155.6734928, 6122.5984928, 6970.0104928, 4971.2234928, 4971.2234928, 4971.2234928, 4971.2234928, 5244.640784904, 5244.640784904, 5244.640784904, 5244.640784904, 5244.640784904, 5244.640784904, 6396.015784904, 7243.427784904, 5244.640784904, 5244.640784904, 5244.640784904, 5244.640784904, 5533.096028073719, 5533.096028073719, 5533.096028073719, 5533.096028073719, 5533.096028073719, 5533.096028073719, 6684.471028073719, 7531.883028073719, 5533.096028073719, 5533.096028073719, 5533.096028073719, 5533.096028073719, 27121.401989843882], "total": 217985.86467357646, "valor_final_rescisao": 23599.9339728, "verbas_rescisorias": 15239.06248, "ultimo_mes_folha": "2029-05"}, {"matricula": 281, "frente": "ADUTORA", "nome": "LUCAS DOS SANTOS PRADO", "cargo": "MOTORISTA DE CAMINHAO I", "inicio": "2026-06-09", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 3117.44, "prev_deslig": "2026-12", "custo_aprox": 5926.682564376, "monthly": [5926.680000000001, 5926.680000000001, 6978.105502997529, 6978.105502997529, 6831.543854279349, 18829.06573271561, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "total": 51470.18059299002, "valor_final_rescisao": 18829.06573271561, "verbas_rescisorias": 11954.2308, "ultimo_mes_folha": "2026-12"}, {"matricula": 73, "frente": "ADUTORA", "nome": "LUIZ CLAUDIO BELMIRO", "cargo": "LIDER DE FRENTE II", "inicio": "2024-10-04", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 4274.74, "prev_deslig": "2029-05", "custo_aprox": 8127.9952558079995, "monthly": [8127.9952558079995, 8127.9952558079995, 10539.815255808, 10539.815255808, 10265.365255808, 11838.469575808, 8127.9952558079995, 8127.9952558079995, 8127.9952558079995, 8127.9952558079995, 8575.034994877438, 8575.034994877438, 8575.034994877438, 8575.034994877438, 8575.034994877438, 8575.034994877438, 10712.404994877437, 12285.509314877438, 8575.034994877438, 8575.034994877438, 8575.034994877438, 8575.034994877438, 9046.661919595697, 9046.661919595697, 9046.661919595697, 9046.661919595697, 9046.661919595697, 9046.661919595697, 11184.031919595698, 12757.136239595697, 9046.661919595697, 9046.661919595697, 9046.661919595697, 9046.661919595697, 45138.35296848513], "total": 360245.8414602427, "valor_final_rescisao": 39556.829055808004, "verbas_rescisorias": 23905.291400000002, "ultimo_mes_folha": "2029-05"}, {"matricula": 269, "frente": "ADUTORA", "nome": "MARCELO RODRIGUES DUARTE", "cargo": "SERVENTE DE OBRAS", "inicio": "2026-04-13", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 2302.75, "prev_deslig": "2029-05", "custo_aprox": 4595.5534928, "monthly": [4595.5534928, 4595.5534928, 6022.2334928, 6022.2334928, 5459.0847428, 6094.6437428, 4595.5534928, 4595.5534928, 4595.5534928, 4595.5534928, 4848.308934903999, 4848.308934903999, 4848.308934903999, 4848.308934903999, 4848.308934903999, 4848.308934903999, 5999.683934903999, 6847.0959349039995, 4848.308934903999, 4848.308934903999, 4848.308934903999, 4848.308934903999, 5114.965926323719, 5114.965926323719, 5114.965926323719, 5114.965926323719, 5114.965926323719, 5114.965926323719, 6266.340926323719, 7113.752926323719, 5114.965926323719, 5114.965926323719, 5114.965926323719, 5114.965926323719, 17084.65351027461], "total": 194115.79227300728, "valor_final_rescisao": 14954.093192799999, "verbas_rescisorias": 7632.083699999999, "ultimo_mes_folha": "2029-05"}, {"matricula": 201, "frente": "SETORIZAÇÃO", "nome": "MATEUS XAVIER MORENO DA SILVA", "cargo": "SERVENTE DE OBRAS", "inicio": "2025-05-26", "situacao": "Sem folha", "periodo_turno": "Diurno", "salario": 1970.97, "prev_deslig": "2029-05", "custo_aprox": 4465.075145024, "monthly": [4465.075145024, 4465.075145024, 4465.075145024, 4465.075145024, 5450.560145024, 6175.877105024, 4465.075145024, 4465.075145024, 4465.075145024, 4465.075145024, 4710.65427800032, 4710.65427800032, 4710.65427800032, 4710.65427800032, 4710.65427800032, 4710.65427800032, 5696.13927800032, 6421.45623800032, 4710.65427800032, 4710.65427800032, 4710.65427800032, 4710.65427800032, 4969.740263290338, 4969.740263290338, 4969.740263290338, 4969.740263290338, 4969.740263290338, 4969.740263290338, 5955.225263290337, 6680.5422232903375, 4969.740263290338, 4969.740263290338, 4969.740263290338, 4969.740263290338, 19842.998613643475], "total": 188747.34543937133, "valor_final_rescisao": 17347.79502280178, "verbas_rescisorias": 9855.309957777778, "ultimo_mes_folha": "2029-05"}, {"matricula": 39, "frente": "SETORIZAÇÃO", "nome": "MIGUEL MAXIMO DIAS JUNIOR", "cargo": "AUXILIAR DE SANEAMENTO", "inicio": "2024-08-05", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 2302.75, "prev_deslig": "2029-05", "custo_aprox": 5156.3534928, "monthly": [5156.3534928, 5156.3534928, 5451.7334928, 5451.7334928, 6307.7284928, 7155.1404928, 5156.3534928, 5156.3534928, 5156.3534928, 5156.3534928, 5439.952934903999, 5439.952934903999, 5439.952934903999, 5439.952934903999, 5439.952934903999, 5439.952934903999, 6591.327934903999, 7438.739934904, 5439.952934903999, 5439.952934903999, 5439.952934903999, 5439.952934903999, 5739.1503463237195, 5739.1503463237195, 5739.1503463237195, 5739.1503463237195, 5739.1503463237195, 5739.1503463237195, 6890.5253463237195, 7737.93734632372, 5739.1503463237195, 5739.1503463237195, 5739.1503463237195, 5739.1503463237195, 23907.761617069304], "total": 219661.781919802, "valor_final_rescisao": 20983.431135022223, "verbas_rescisorias": 11626.861642222224, "ultimo_mes_folha": "2029-05"}, {"matricula": 189, "frente": "REPOSIÇÃO ASFALTICA", "nome": "NILSON GOMES ALVES", "cargo": "MOTORISTA DE CAMINHAO", "inicio": "2025-05-19", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 2801.99, "prev_deslig": "2029-05", "custo_aprox": 6136.731299007999, "monthly": [6136.731299007999, 6136.731299007999, 6440.061299007999, 6440.061299007999, 7537.726299007999, 8568.858619007999, 6136.731299007999, 6136.731299007999, 6136.731299007999, 6136.731299007999, 6474.251520453438, 6474.251520453438, 6474.251520453438, 6474.251520453438, 6474.251520453438, 6474.251520453438, 7875.246520453438, 8906.378840453439, 6474.251520453438, 6474.251520453438, 6474.251520453438, 6474.251520453438, 6830.335354078377, 6830.335354078377, 6830.335354078377, 6830.335354078377, 6830.335354078377, 6830.335354078377, 8231.330354078378, 9262.462674078377, 6830.335354078377, 6830.335354078377, 6830.335354078377, 6830.335354078377, 31326.31817542824], "total": 264454.7006198901, "valor_final_rescisao": 27316.55412345245, "verbas_rescisorias": 16875.96618444445, "ultimo_mes_folha": "2029-05"}, {"matricula": 100, "frente": "ADUTORA", "nome": "NILTON JESUS CRUZ", "cargo": "OPERADOR DE RETROESCAVADEIRA", "inicio": "2025-02-03", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 4029.94, "prev_deslig": "2026-12", "custo_aprox": 6801.532673784, "monthly": [6801.529999999999, 6801.529999999999, 6819.5958440993045, 6819.5958440993045, 8811.900338325351, 21285.214263926002, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "total": 57339.36629044996, "valor_final_rescisao": 21285.214263926002, "verbas_rescisorias": 10901.073800000002, "ultimo_mes_folha": "2026-12"}, {"matricula": 110, "frente": "ADUTORA", "nome": "RICARDO ANDRE PONTES", "cargo": "OPER. ESCAVADEIRA HIDRAULICA", "inicio": "2025-02-13", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 4658.99, "prev_deslig": "2026-12", "custo_aprox": 8698.676393407999, "monthly": [8698.676393407999, 8698.676393407999, 9984.316393407998, 9984.316393407998, 11028.171393408, 35342.568953407994, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "total": 83736.72592044799, "valor_final_rescisao": 35342.568953407994, "verbas_rescisorias": 23363.9636, "ultimo_mes_folha": "2026-12"}, {"matricula": 277, "frente": "REPOSIÇÃO", "nome": "ROBSON CLAYTON DE OLIVEIRA", "cargo": "PEDREIRO", "inicio": "2026-05-14", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 2801.99, "prev_deslig": "2029-05", "custo_aprox": 5386.781299007999, "monthly": [5386.781299007999, 5386.781299007999, 6089.021299007999, 6089.021299007999, 6320.777965674666, 7008.199512341333, 5386.781299007999, 5386.781299007999, 5386.781299007999, 5386.781299007999, 5683.054270453439, 5683.054270453439, 5683.054270453439, 5683.054270453439, 5683.054270453439, 5683.054270453439, 7084.049270453439, 8115.181590453439, 5683.054270453439, 5683.054270453439, 5683.054270453439, 5683.054270453439, 5995.622255328378, 5995.622255328378, 5995.622255328378, 5995.622255328378, 5995.622255328378, 5995.622255328378, 7396.617255328378, 8427.749575328377, 5995.622255328378, 5995.622255328378, 5995.622255328378, 5995.622255328378, 23795.430411671143], "total": 229433.50123113295, "valor_final_rescisao": 20743.488821230225, "verbas_rescisorias": 12128.815042222222, "ultimo_mes_folha": "2029-05"}, {"matricula": 116, "frente": "ADUTORA", "nome": "SANDRO PATRICIO DA SILVA", "cargo": "ENCANADOR", "inicio": "2025-02-17", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 2801.99, "prev_deslig": "2026-12", "custo_aprox": 6060.321299007999, "monthly": [6060.321299007999, 6060.321299007999, 7219.271299007999, 7219.271299007999, 7461.316299007999, 21480.260459007997, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "total": 55500.761954047994, "valor_final_rescisao": 21480.260459007997, "verbas_rescisorias": 13447.3382, "ultimo_mes_folha": "2026-12"}, {"matricula": 167, "frente": "CANTEIRO", "nome": "SARAH NASCIMENTO SILVA", "cargo": "ANALISTA ADMINISTRATIVO", "inicio": "2025-05-08", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 3511.66, "prev_deslig": "2029-05", "custo_aprox": 6774.8689344879995, "monthly": [6774.87, 6774.87, 6782.531254650254, 6782.531254650254, 8478.503662306655, 9732.378037764356, 6774.87, 6774.87, 6774.87, 6774.87, 7147.4878499999995, 7147.4878499999995, 7147.4878499999995, 7147.4878499999995, 7147.4878499999995, 7147.4878499999995, 8851.121512306656, 10104.995887764355, 7147.4878499999995, 7147.4878499999995, 7147.4878499999995, 7147.4878499999995, 7540.599681749999, 7540.599681749999, 7540.599681749999, 7540.599681749999, 7540.599681749999, 7540.599681749999, 9244.233344056654, 10498.107719514353, 7540.599681749999, 7540.599681749999, 7540.599681749999, 7540.599681749999, 30977.933852062903], "total": 288982.4318425764, "valor_final_rescisao": 27157.820935651747, "verbas_rescisorias": 13011.312080000003, "ultimo_mes_folha": "2029-05"}, {"matricula": 5, "frente": "ENGENHARIA", "nome": "TAINA VIEIRA LIMA SANTOS", "cargo": "ANALISTA DE ENGENHARIA JR", "inicio": "2024-07-01", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 4521.45, "prev_deslig": "2029-05", "custo_aprox": 8400.379252112, "monthly": [8400.38, 8400.38, 10250.215776594294, 10250.215776594294, 10643.754383993179, 12294.87793061216, 8400.38, 8400.38, 8400.38, 8400.38, 8862.400899999997, 8862.400899999997, 8862.400899999997, 8862.400899999997, 8862.400899999997, 8862.400899999997, 11105.775283993178, 12756.89883061216, 8862.400899999997, 8862.400899999997, 8862.400899999997, 8862.400899999997, 9349.832949499998, 9349.832949499998, 9349.832949499998, 9349.832949499998, 9349.832949499998, 9349.832949499998, 11593.20733349318, 13244.330880112158, 9349.832949499998, 9349.832949499998, 9349.832949499998, 9349.832949499998, 37625.23962729039], "total": 362289.13431829493, "valor_final_rescisao": 33277.841405454696, "verbas_rescisorias": 15673.488928888892, "ultimo_mes_folha": "2029-05"}, {"matricula": 58, "frente": "CANTEIRO", "nome": "THAIS MARIA CRUZ DE ARAUJO", "cargo": "AUXILIAR DE LIMPEZA", "inicio": "2024-09-02", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 2302.75, "prev_deslig": "2029-05", "custo_aprox": 4767.0534928, "monthly": [4767.0534928, 4767.0534928, 4792.453492799999, 4792.453492799999, 5918.4284928, 6765.8404928, 4767.0534928, 4767.0534928, 4767.0534928, 4767.0534928, 5029.241434903999, 5029.241434903999, 5029.241434903999, 5029.241434903999, 5029.241434903999, 5029.241434903999, 6180.616434903999, 7028.028434903999, 5029.241434903999, 5029.241434903999, 5029.241434903999, 5029.241434903999, 5305.849713823719, 5305.849713823719, 5305.849713823719, 5305.849713823719, 5305.849713823719, 5305.849713823719, 6457.224713823719, 7304.636713823719, 5305.849713823719, 5305.849713823719, 5305.849713823719, 5305.849713823719, 21118.557235856824], "total": 202311.4719485895, "valor_final_rescisao": 18597.172279466668, "verbas_rescisorias": 9703.590786666668, "ultimo_mes_folha": "2029-05"}, {"matricula": 29, "frente": "CANTEIRO", "nome": "VICTOR FERNANDES CASSIMIRO DOS SANTOS", "cargo": "ANALISTA DE SUPRIMENTOS PLENO", "inicio": "2024-07-15", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 5083.92, "prev_deslig": "2029-05", "custo_aprox": 9311.033239944, "monthly": [9311.03, 9311.03, 11090.75574023121, 11090.75574023121, 11772.39968342968, 13583.967770433921, 9311.03, 9311.03, 9311.03, 9311.03, 9823.13665, 9823.13665, 9823.13665, 9823.13665, 9823.13665, 9823.13665, 12284.50633342968, 14096.074420433923, 9823.13665, 9823.13665, 9823.13665, 9823.13665, 10363.409165750001, 10363.409165750001, 10363.409165750001, 10363.409165750001, 10363.409165750001, 10363.409165750001, 12824.77884917968, 14636.346936183923, 10363.409165750001, 10363.409165750001, 10363.409165750001, 10363.409165750001, 44346.25310566661], "total": 403457.47673671984, "valor_final_rescisao": 39121.6223288096, "verbas_rescisorias": 16383.291620000002, "ultimo_mes_folha": "2029-05"}, {"matricula": 164, "frente": "CANTEIRO", "nome": "VIVIANE DOS SANTOS SILVA", "cargo": "TECNICO EM SEG. DO TRABALHO", "inicio": "2025-05-08", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 4877.12, "prev_deslig": "2029-05", "custo_aprox": 8973.417551104, "monthly": [8973.417551104, 8973.417551104, 9213.497551104, 9213.497551104, 11411.977551103999, 13206.757711104, 8973.417551104, 8973.417551104, 8973.417551104, 8973.417551104, 9466.955516414719, 9466.955516414719, 9466.955516414719, 9466.955516414719, 9466.955516414719, 9466.955516414719, 11905.515516414718, 13700.295676414718, 9466.955516414719, 9466.955516414719, 9466.955516414719, 9466.955516414719, 9987.638069817529, 9987.638069817529, 9987.638069817529, 9987.638069817529, 9987.638069817529, 9987.638069817529, 12426.198069817528, 14220.978229817529, 9987.638069817529, 9987.638069817529, 9987.638069817529, 9987.638069817529, 37124.25075189131], "total": 380809.4097777181, "valor_final_rescisao": 32727.119288881775, "verbas_rescisorias": 16262.445417777777, "ultimo_mes_folha": "2029-05"}, {"matricula": 42, "frente": "ADUTORA", "nome": "WESLEY FELIPE DA SILVA", "cargo": "LIDER DE FRENTE II", "inicio": "2024-08-05", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 4274.74, "prev_deslig": "2026-12", "custo_aprox": 8658.181172199998, "monthly": [8658.18, 8658.18, 10470.948279176284, 10470.948279176284, 10781.389843830944, 35290.37438763966, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "total": 84330.02078982317, "valor_final_rescisao": 35290.37438763966, "verbas_rescisorias": 22213.6624, "ultimo_mes_folha": "2026-12"}, {"matricula": 243, "frente": "SETORIZAÇÃO", "nome": "WILLIAN VERAS FERREIRA", "cargo": "ASSISTENTE DE SANEAMENTO", "inicio": "2025-07-17", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 2801.99, "prev_deslig": "2029-05", "custo_aprox": 5829.111299007999, "monthly": [5829.111299007999, 5829.111299007999, 6187.951299007999, 6187.951299007999, 7230.106299007999, 8261.238619008, 5829.111299007999, 5829.111299007999, 5829.111299007999, 5829.111299007999, 6149.712420453438, 6149.712420453438, 6149.712420453438, 6149.712420453438, 6149.712420453438, 6149.712420453438, 7550.707420453438, 8581.839740453437, 6149.712420453438, 6149.712420453438, 6149.712420453438, 6149.712420453438, 6487.946603578378, 6487.946603578378, 6487.946603578378, 6487.946603578378, 6487.946603578378, 6487.946603578378, 7888.941603578378, 8920.073923578377, 6487.946603578378, 6487.946603578378, 6487.946603578378, 6487.946603578378, 24589.081543508713], "total": 246749.14978197037, "valor_final_rescisao": 21552.421619007997, "verbas_rescisorias": 11598.78104, "ultimo_mes_folha": "2029-05"}, {"matricula": 264, "frente": "CANTEIRO", "nome": "YASMIN VITORIA PEREIRA CAMARGO", "cargo": "APRENDIZ", "inicio": "2026-02-10", "situacao": "Ativo", "periodo_turno": "Diurno", "salario": 884.18, "prev_deslig": "2027-02", "custo_aprox": 1344.95, "monthly": [1344.95, 1344.95, 1344.95, 1344.95, 1750.1991666666668, 2048.4625533333333, 1344.95, 1684.47512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "total": 12207.886840000001, "valor_final_rescisao": 1684.47512, "verbas_rescisorias": 0, "ultimo_mes_folha": "2027-02"}]};
+/* Edições (família, desligamento) e valores Real jul–out/2026 já incorporados a este arquivo */
+const SEED_OVERRIDES = {"100": {"deslig": "2029-05", "frentePorMes": {"2027-01": "REPOSIÇÃO"}, "realizado": {"2026-07": 6102.26, "2026-08": 7358.95, "2026-09": 5993.99, "2026-10": 7613.74}}, "110": {"realizado": {"2026-07": 7916.23, "2026-08": 9138.71, "2026-09": 7192.88, "2026-10": 8036.81}}, "116": {"realizado": {"2026-07": 5579.21, "2026-08": 6161.23, "2026-09": 4723.53, "2026-10": 5727.57}}, "139": {"deslig": "2026-12", "realizado": {"2026-07": 5345.65, "2026-08": 2941.36, "2026-09": 4506.96, "2026-10": 5155.37}}, "164": {"realizado": {"2026-07": 7778.67, "2026-08": 8440.56, "2026-09": 6585.38, "2026-10": 6335.55}}, "167": {"deslig": "2027-07", "realizado": {"2026-07": 5847.68, "2026-08": 6339.32, "2026-09": 4854.03, "2026-10": 4848.73}}, "174": {"deslig": "2026-12", "realizado": {"2026-07": 5189.83, "2026-08": 5434.85, "2026-09": 4164.46, "2026-10": 4202.15}}, "189": {"deslig": "2026-12", "realizado": {"2026-07": 6679.54, "2026-08": 6751.79, "2026-09": 5036.49, "2026-10": 5354.12}}, "212": {"realizado": {"2026-07": 5936.04, "2026-08": 5658.49, "2026-09": 4523.73, "2026-10": 4130.86}}, "241": {"realizado": {"2026-07": 4066.49, "2026-08": 4625.13, "2026-09": 3469.1, "2026-10": 3492.23}}, "242": {"realizado": {"2026-07": 5939.36, "2026-08": 5843.03, "2026-09": 4613.58, "2026-10": 4354.44}}, "243": {"realizado": {"2026-07": 5487.48, "2026-08": 5436.13, "2026-09": 4410.3, "2026-10": 4652.73}}, "264": {"deslig": "2027-03", "realizado": {"2026-07": 1344.95, "2026-08": 1356.28, "2026-09": 1101.64, "2026-10": 1101.64}}, "265": {"deslig": "2027-03", "realizado": {"2026-07": 1344.95, "2026-08": 1356.28, "2026-09": 1101.64, "2026-10": 1101.64}}, "269": {"frente": "PESQUISA DE VAZAMENTO", "realizado": {"2026-07": 4287.97, "2026-08": 5451.08, "2026-09": 4774.47, "2026-10": 5746.51}}, "272": {"deslig": "2029-05", "frentePorMes": {"2027-01": "SETORIZAÇÃO"}, "realizado": {"2026-07": 3407.71, "2026-08": 4784.13, "2026-09": 4016.86, "2026-10": 3746.82}}, "277": {"realizado": {"2026-07": 4151.41, "2026-08": 5467.37, "2026-09": 4621.67, "2026-10": 4684.98}}, "279": {"realizado": {"2026-07": 3602.38, "2026-08": 4762.75, "2026-09": 4600.35, "2026-10": 4548.07}}, "281": {"realizado": {"2026-07": 5023.7, "2026-08": 5696.24, "2026-09": 5382.72, "2026-10": 5930.87}}, "29": {"realizado": {"2026-07": 6834.08, "2026-08": 11251.43, "2026-09": 7958.59, "2026-10": 8363.85}}, "36": {"deslig": "2026-12", "frente": "ADUTORA", "realizado": {"2026-07": 18555.97, "2026-08": 22920.63, "2026-09": 16621.08, "2026-10": 17513.69}}, "39": {"deslig": "2026-11", "realizado": {"2026-07": 4895.04, "2026-08": 4787.68, "2026-09": 3969.77, "2026-10": 14572.01}}, "42": {"realizado": {"2026-07": 9449.49, "2026-08": 10385.79, "2026-09": 8219.93, "2026-10": 9151.69}}, "5": {"realizado": {"2026-07": 6786.43, "2026-08": 8333.32, "2026-09": 7630.9, "2026-10": 7653.33}}, "50": {"deslig": "2026-12", "frente": "PESQUISA DE VAZAMENTO", "realizado": {"2026-07": 8026.5, "2026-08": 9076.12, "2026-09": 7911.21, "2026-10": 9002.06}}, "58": {"realizado": {"2026-07": 4323.82, "2026-08": 4533.38, "2026-09": 3562.69, "2026-10": 3543.17}}, "60": {"deslig": "2029-05", "frente": "REPOSIÇÃO", "frentePorMes": {"2027-01": "REPOSIÇÃO ASFALTICA"}, "realizado": {"2026-07": 6590.7, "2026-08": 6675.09, "2026-09": 4992.06, "2026-10": 5291.53}}, "73": {"deslig": "2026-12", "realizado": {"2026-07": 8020.54, "2026-08": 9046.73, "2026-09": 8649.26, "2026-10": 10137.74}}, "86": {"deslig": "2026-12", "realizado": {"2026-07": 5977.48, "2026-08": 6707.56, "2026-09": 4747.07, "2026-10": 7783.17}}, "9": {"deslig": "2026-12", "realizado": {"2026-07": 6543.94, "2026-08": 7131.49, "2026-09": 5522.29, "2026-10": 5422.6}}};
 const MONTHS = PAYLOAD.months;
 const MONTH_LABELS = PAYLOAD.monthLabels;
 const FRENTE_COLORS = PAYLOAD.frenteColors;
-const EMPLOYEES = PAYLOAD.employees;
+const DESLIGADOS = [201];
+const EMPLOYEES = PAYLOAD.employees.filter(e => !DESLIGADOS.includes(e.matricula));
 const FRENTES = Object.keys(FRENTE_COLORS);
 
 const BRL = new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL', maximumFractionDigits:0});
@@ -608,7 +1023,7 @@ const state = {
   matrixColabs: new Set(EMPLOYEES.map(e=>e.matricula)),
   matColabSearch: '',
   familiaRefMonth: defaultFamiliaRefMonthIndex(), /* índice em MONTHS usado pela coluna "Família" da matriz */
-  overrides: {} /* matricula -> {frente?, deslig?, frentePorMes?} — deslig: 'YYYY-MM' | null; frentePorMes: {'YYYY-MM': 'FAMÍLIA'} = a família passa a valer a partir daquele mês (e nos seguintes, até a próxima alteração); undefined = não editado */
+  overrides: JSON.parse(JSON.stringify(SEED_OVERRIDES)) /* matricula -> {frente?, deslig?, frentePorMes?} — deslig: 'YYYY-MM' | null; frentePorMes: {'YYYY-MM': 'FAMÍLIA'} = a família passa a valer a partir daquele mês (e nos seguintes, até a próxima alteração); undefined = não editado */
 };
 
 /* ==================== SIMULATION: editable desligamento / família ====================
@@ -1263,7 +1678,7 @@ function renderVBarChart(container, {labels, values, color, fmt, yMin, yMax}){
     t.textContent = compactNum(v);
     svg.appendChild(t);
   }
-  const skip = Math.max(1, Math.ceil(n/12));
+  const skip = Math.max(1, Math.ceil(n/Math.max(3, Math.floor(plotW/62))));
   values.forEach((v,i)=>{
     const x = padL + i*slot + (slot-barW)/2;
     const frac = Math.max(0, Math.min(1, (v-dMin)/dSpan));
@@ -1317,10 +1732,10 @@ function renderAreaChart(container, {labels, values, color, fillColor, fmt, yMin
 }
 
 /* horizontal bar chart: one bar per category, direct labels both sides, no legend needed */
-function renderHBarChart(container, rows, {fmt}){
+function renderHBarChart(container, rows, {fmt, lbl: valLbl, padL: padLx}){
   container.innerHTML = '';
   const {w:W, h:H} = boxSize(container, 460, 404);
-  const padL = 138, padR = 84, padT = 6, padB = 6;
+  const padL = padLx||138, padR = 84, padT = 6, padB = 6;
   const plotW = W-padL-padR, plotH = H-padT-padB;
   const rowH = plotH/Math.max(rows.length,1);
   const max = niceCeil(Math.max(...rows.map(r=>r.val), 0));
@@ -1333,11 +1748,11 @@ function renderHBarChart(container, rows, {fmt}){
     lbl.textContent = r.label;
     svg.appendChild(lbl);
     const rect = svgEl('rect', {x:padL, y:(cy-barH/2).toFixed(1), width:Math.max(w,1).toFixed(1), height:barH.toFixed(1), rx:4, fill:r.color, class:'bar-mark'});
-    rect.addEventListener('mousemove', (e)=> showTip(container, e, `<b>${r.label}</b><br>${fmt(r.val)}`));
+    rect.addEventListener('mousemove', (e)=> showTip(container, e, `<b>${r.full||r.label}</b><br>${fmt(r.val)}`));
     rect.addEventListener('mouseleave', ()=> hideTip(container));
     svg.appendChild(rect);
     const vlbl = svgEl('text', {x:(padL+w+8).toFixed(1), y:(cy+4.5).toFixed(1), 'text-anchor':'start', 'font-size':12, fill:'#5b6472', 'font-family':'IBM Plex Mono, monospace'});
-    vlbl.textContent = compactNum(r.val);
+    vlbl.textContent = (valLbl||compactNum)(r.val);
     svg.appendChild(vlbl);
   });
   container.appendChild(svg);
@@ -1785,7 +2200,7 @@ function saveAllChanges(){
       volta (evento 'online' do navegador) e a cada ciclo da sincronização periódica — e fica
       resumida no aviso ao lado do botão "Sincronizar entre computadores", pra ficar visível
       que existem edições feitas offline ainda não repassadas pra planilha. */
-const OVERRIDES_STORE_KEY = 'histogramaSBPG_overrides_v1';
+const OVERRIDES_STORE_KEY = 'histogramaSBPG_overrides_v2';
 function saveOverridesLocal(){
   try{ localStorage.setItem(OVERRIDES_STORE_KEY, JSON.stringify(state.overrides)); }
   catch(err){ /* localStorage indisponível/cheio — segue sem cache local nesta janela */ }
@@ -2440,4 +2855,61 @@ window.addEventListener('resize', ()=>{
   clearTimeout(resizeT);
   resizeT = setTimeout(()=>{ safe('evo-charts', renderEvoCharts); safe('frente-chart', renderFrenteChart); }, 180);
 });
+
+/* ==================== PAINEL: abas e botões de família ==================== */
+(function(){
+  const tabs = Array.from(document.querySelectorAll('.tab-btn'));
+  function showView(name){
+    tabs.forEach(t=> t.setAttribute('aria-selected', String(t.dataset.view===name)));
+    document.querySelectorAll('.view').forEach(v=>{ v.hidden = (v.id !== 'view-'+name); });
+    try{ localStorage.setItem('painel-sbpg-aba', name); }catch(e){}
+    if(name==='histograma'){ safe('evo-charts', renderEvoCharts); safe('frente-chart', renderFrenteChart); }
+    if(name==='frotas' && window.renderFrotas){ safe('frotas', window.renderFrotas); }
+    if(name==='combustivel' && window.renderCombustivel){ safe('combustivel', window.renderCombustivel); }
+    if(name==='equipamentos' && window.renderEquipamentos){ safe('equipamentos', window.renderEquipamentos); }
+    if(name==='fluxo' && window.renderFluxo){ safe('fluxo', window.renderFluxo); }
+    if(name==='capa' && window.renderCapa){ safe('capa', window.renderCapa); }
+    window.scrollTo(0,0);
+  }
+  tabs.forEach(t=> t.addEventListener('click', ()=> showView(t.dataset.view)));
+  showView('histograma');
+
+  const bar = document.getElementById('famBar');
+  function famCounts(){ try{ return effFrenteCounts(); }catch(e){ return {}; } }
+  function buildFamBar(){
+    const c = famCounts();
+    const allOn = state.frentes.size === FRENTES.length;
+    let h = '<span class="filter-label">Família</span>';
+    h += `<button class="fam-btn all" type="button" data-fam="__all" aria-pressed="${allOn}">Todas</button>`;
+    FRENTES.forEach(fr=>{
+      const on = !allOn && state.frentes.size===1 && state.frentes.has(fr) || (!allOn && state.frentes.has(fr));
+      h += `<button class="fam-btn" type="button" data-fam="${fr}" aria-pressed="${on}"><span class="dot" style="background:${FRENTE_COLORS[fr]}"></span>${titleCase(fr)}<span class="n">${c[fr]??''}</span></button>`;
+    });
+    bar.innerHTML = h;
+  }
+  bar.addEventListener('click', (ev)=>{
+    const b = ev.target.closest('.fam-btn'); if(!b) return;
+    const fr = b.dataset.fam;
+    if(fr==='__all'){ state.frentes = new Set(FRENTES); }
+    else if(ev.ctrlKey || ev.metaKey || ev.shiftKey){
+      const s = new Set(state.frentes.size===FRENTES.length ? [] : state.frentes);
+      if(s.has(fr)) s.delete(fr); else s.add(fr);
+      state.frentes = s.size ? s : new Set(FRENTES);
+    } else {
+      state.frentes = new Set([fr]);
+    }
+    safe('frente-checks', buildFrenteChecks);
+    onFilterChange();
+    buildFamBar();
+  });
+  // mantém os botões em sincronia quando o filtro muda por outro caminho
+  const _ofc = onFilterChange;
+  window.onFilterChange = function(){ _ofc(); buildFamBar(); };
+  buildFamBar();
+})();
+
 </script>
+
+
+
+</body></html>
